@@ -18,6 +18,7 @@ Compose builds the server and SFU images from this checkout, with Equicord at th
 ## Requirements
 
 - A Linux host with Docker Engine and the Compose plugin.
+- GNU Make if you use the deployment shortcuts below.
 - A DNS record for the instance's domain that points at the host.
 - Open ports: 80/tcp, 443/tcp, 443/udp, and 50000/udp for voice unless you change `WRTC_PORT`. With `TURN_SECRET` set, also 3478/udp, 3478/tcp and 49160 to 49200/udp.
 
@@ -25,15 +26,18 @@ Compose builds the server and SFU images from this checkout, with Equicord at th
 
 ```sh
 git clone https://github.com/realfornax/VerseCord.git versecord && cd versecord
-cp .env.example .env
+make init
 $EDITOR .env
-docker compose up -d --build
-docker compose logs -f client
+make up
 ```
 
-The client service downloads about 300 MB in 12,000 files, which takes several minutes. The server starts when the client service exits, and Caddy starts once the server is healthy. Then open `https://<DOMAIN>/register`. Nothing from Discord goes into the image or into git.
+The client service downloads about 300 MB in 12,000 files, which takes several minutes. The server starts when the client service exits, and Caddy starts once the server is healthy. Use `docker compose logs -f client` to follow the download. Once the stack is ready, open `https://<DOMAIN>/register`. Nothing from Discord goes into the image or into git.
 
-To use an env file other than `.env`, pass it to every `docker compose` command, as in `docker compose --env-file prod.env up -d`, and set `ENV_FILE=prod.env` for the scripts in `scripts/ops` and `scripts/auto-update.sh`.
+`make down` stops and removes the Compose containers and networks. The named volumes keep their data. Use `make stop` to stop the containers, `make restart` to restart them, or `make build` to rebuild images.
+
+Without Make, copy `.env.example` to `.env`, edit it and run `docker compose up -d --build`.
+
+Compose loads `.env` by default. For a different file, call Compose directly with `--env-file prod.env` before the subcommand, and set `ENV_FILE=prod.env` for the scripts in `scripts/ops` and `scripts/auto-update.sh`.
 
 ## Environment
 
@@ -149,8 +153,7 @@ The restore script checks the checksums, refuses a database or volume that has d
 
 ```sh
 git pull
-REVISION=$(git rev-parse HEAD) REVISION_TIME=$(git log -1 --format=%ct) docker compose build
-docker compose up -d
+REVISION=$(git rev-parse HEAD) REVISION_TIME=$(git log -1 --format=%ct) make up
 ```
 
 Migrations run when the server starts. The client service only downloads into an empty volume, so the web client stays as it is. When an update changes the Discord build pinned in `client/release.json`, the containers refuse the old build until you refresh the client:

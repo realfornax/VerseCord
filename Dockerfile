@@ -63,6 +63,7 @@ COPY scripts/lib/sticker-assets.cjs scripts/lib/sticker-assets.cjs
 COPY docker/entrypoint.sh docker/
 ARG REVISION=""
 ARG REVISION_TIME="0"
+RUN chmod +x docker/entrypoint.sh
 RUN if [ -n "$REVISION" ]; then printf '{"rev":"%s","lastModified":%s}\n' "$REVISION" "$REVISION_TIME" > .rev; fi \
     && mkdir -p /data/state /data/storage /data/client /run/sfu \
     && ln -s /data/client/cache assets/cache \
