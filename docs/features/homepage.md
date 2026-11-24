@@ -4,7 +4,7 @@ The instance's own pages outside the client are the homepage at `/`, the link pr
 
 ## Homepage
 
-The homepage has the instance icon and name, a tagline, sign-up and sign-in buttons, 4 feature highlights and a FAQ of 7 questions. The footer links to `/status`, `/terms`, `/privacy` and `/guidelines` and keeps the Meowcord credit.
+The homepage has the instance icon and name, a tagline, sign-up and sign-in buttons, 4 feature highlights and a FAQ of 7 questions. The footer links to `/status`, `/terms`, `/privacy` and `/guidelines` and keeps the upstream project credit.
 
 | Setting                                              | Effect                                                                         |
 | ---------------------------------------------------- | ------------------------------------------------------------------------------ |

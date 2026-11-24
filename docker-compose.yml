@@ -176,18 +176,18 @@ services:
 
 volumes:
   postgres:
-    name: ${MEOWCORD_VOLUME_PREFIX:-fosscord}_postgres
+    name: ${VERSECORD_VOLUME_PREFIX:-${MEOWCORD_VOLUME_PREFIX:-fosscord}}_postgres
   state:
-    name: ${MEOWCORD_VOLUME_PREFIX:-fosscord}_state
+    name: ${VERSECORD_VOLUME_PREFIX:-${MEOWCORD_VOLUME_PREFIX:-fosscord}}_state
   storage:
-    name: ${MEOWCORD_VOLUME_PREFIX:-fosscord}_storage
+    name: ${VERSECORD_VOLUME_PREFIX:-${MEOWCORD_VOLUME_PREFIX:-fosscord}}_storage
   client:
-    name: ${MEOWCORD_VOLUME_PREFIX:-fosscord}_client
+    name: ${VERSECORD_VOLUME_PREFIX:-${MEOWCORD_VOLUME_PREFIX:-fosscord}}_client
   sfu:
-    name: ${MEOWCORD_VOLUME_PREFIX:-fosscord}_sfu
+    name: ${VERSECORD_VOLUME_PREFIX:-${MEOWCORD_VOLUME_PREFIX:-fosscord}}_sfu
   warp:
-    name: ${MEOWCORD_VOLUME_PREFIX:-fosscord}_warp
+    name: ${VERSECORD_VOLUME_PREFIX:-${MEOWCORD_VOLUME_PREFIX:-fosscord}}_warp
   caddy_data:
-    name: ${MEOWCORD_VOLUME_PREFIX:-fosscord}_caddy_data
+    name: ${VERSECORD_VOLUME_PREFIX:-${MEOWCORD_VOLUME_PREFIX:-fosscord}}_caddy_data
   caddy_config:
-    name: ${MEOWCORD_VOLUME_PREFIX:-fosscord}_caddy_config
+    name: ${VERSECORD_VOLUME_PREFIX:-${MEOWCORD_VOLUME_PREFIX:-fosscord}}_caddy_config

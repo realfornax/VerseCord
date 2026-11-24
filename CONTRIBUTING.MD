@@ -2,7 +2,7 @@
 
 **agent contributions are allowed during the alpha.** Use a frontier model such as Opus 5.5, say so in the pull request description, and test your change for bugs and vulnerabilities.
 
-Meowcord isn't ready for general use. Don't host a public instance unless it is labelled unstable and unofficial.
+VerseCord isn't ready for general use. Don't host a public instance unless it is labelled unstable and unofficial.
 
 ## What we won't merge
 
@@ -28,7 +28,7 @@ Then, in a fresh clone:
 ```sh
 bun install
 bun run generate:client
-bun run dev:setup 3001 meowcord_dev_3001
+bun run dev:setup 3001 versecord_dev_3001
 ```
 
 `bun install` applies the fixes in `patches/` and turns on the pre-commit hook in `.githooks`. `generate:client` downloads the Discord web client, about 300 MB, into `assets/cache`, compresses it and builds Equicord with our plugins into `assets/vencord`.
@@ -65,11 +65,11 @@ To use SQLite instead of PostgreSQL, see [setup.md](docs/self-hosting/setup.md#s
 
 ## Configuration
 
-`CONFIG_PATH` points the server at a JSON file. The server fills in every missing key with its default and writes the file back. Without `CONFIG_PATH`, the configuration lives in the database. The admin dashboard edits the same values. These keys are specific to Meowcord:
+`CONFIG_PATH` points the server at a JSON file. The server fills in every missing key with its default and writes the file back. Without `CONFIG_PATH`, the configuration lives in the database. The admin dashboard edits the same values. These keys are specific to VerseCord:
 
 | Key | What it controls |
 | --- | --- |
-| `client.instanceName` | The name that replaces Discord in the client. `Meowcord` by default. |
+| `client.instanceName` | The name that replaces Discord in the client. Set it to `VerseCord` to use the fork’s name. |
 | `client.icon`, `client.logo` | Square icon and wordmark, as a URL or a path relative to the repository root. The icon falls back to `general.image`, then `assets/icon.png`. |
 | `client.helpUrl` | Where help links go. Without it the help button is hidden. |
 | `client.experiments` | Client experiment names mapped to the variant to assign. |
@@ -89,12 +89,12 @@ To use SQLite instead of PostgreSQL, see [setup.md](docs/self-hosting/setup.md#s
 Branch off `main`, one topic per branch. Give each parallel branch its own worktree, port and database:
 
 ```sh
-git worktree add ../meowcord-voice -b voice-reconnect
-cd ../meowcord-voice
-scripts/dev/worktree-setup.sh 3240 meowcord_voice
+git worktree add ../versecord-voice -b voice-reconnect
+cd ../versecord-voice
+scripts/dev/worktree-setup.sh 3240 versecord_voice
 ```
 
-Remove the `assets/vencord` link before running `bun run build:equicord` in a worktree, or the build writes into the main checkout. When the branch is done, stop its server, run `dropdb meowcord_voice` and remove the worktree.
+Remove the `assets/vencord` link before running `bun run build:equicord` in a worktree, or the build writes into the main checkout. When the branch is done, stop its server, run `dropdb versecord_voice` and remove the worktree.
 
 ## Commits
 

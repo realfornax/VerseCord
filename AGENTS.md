@@ -1,6 +1,6 @@
 # Agent guide
 
-Meowcord is a self-hosted server that speaks Discord's REST API, gateway and voice protocol. It serves the official Discord web client from a local cache with Equicord injected, rebranded as the instance. It is a fork of Spacebar server, written in TypeScript on Express 5, TypeORM and PostgreSQL, and it runs on Bun. Some docs and code still say Fosscord, the project's earlier name.
+VerseCord is a self-hosted server that speaks Discord's REST API, gateway and voice protocol. It serves the official Discord web client from a local cache with Equicord injected, rebranded as the instance. It is a fork of Spacebar server, written in TypeScript on Express 5, TypeORM and PostgreSQL, and it runs on Bun. Some docs and code still say Fosscord, the project's earlier name.
 
 Read [README.md](README.md) for setup, [CONTRIBUTING.MD](CONTRIBUTING.MD) for conventions, [docs/development/client-patches.md](docs/development/client-patches.md) before touching the client and [docs/features/e2ee.md](docs/features/e2ee.md) before touching encryption. [docs/development/parity.md](docs/development/parity.md) lists every Discord feature and its state, and [docs/development/work-backlog.md](docs/development/work-backlog.md) is the task queue. [docs/README.md](docs/README.md) indexes the rest. Update all of these as you go.
 
@@ -41,7 +41,7 @@ Bun 1.4 runs everything: installs, the server, scripts and tests. Don't use npm,
 ```sh
 bun install
 bun run generate:client
-scripts/dev/worktree-setup.sh 3001 meowcord
+scripts/dev/worktree-setup.sh 3001 versecord
 ```
 
 `worktree-setup.sh <port> <db>` runs `bun install`, writes `.env` and `config.json`, builds the SFU when Go is installed, creates a fresh database and refuses existing databases, runtime configuration and occupied ports, builds, starts the server and seeds two accounts. In a git worktree it links `assets/cache`, `assets/cache_compressed` and `assets/vencord` from the main checkout. Give each worktree its own port and database.

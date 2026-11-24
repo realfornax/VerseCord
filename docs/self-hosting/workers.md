@@ -1,6 +1,6 @@
 # Cloudflare Workers
 
-Meowcord can run as Cloudflare Workers instead of the Bun server. Nobody has deployed this yet. It was tested with `wrangler dev` on one machine, and the Bun server in [setup.md](setup.md) is still the supported way to host an instance. Voice doesn't work on Workers.
+VerseCord can run as Cloudflare Workers instead of the Bun server. Nobody has deployed this yet. It was tested with `wrangler dev` on one machine, and the Bun server in [setup.md](setup.md) is still the supported way to host an instance. Voice doesn't work on Workers.
 
 | Worker             | Directory         | What it does                                                                                              |
 | ------------------ | ----------------- | --------------------------------------------------------------------------------------------------------- |
@@ -22,7 +22,7 @@ Run these from the repository root with `bunx wrangler@4.79.0`, the version the 
     ```sh
     bun install
     bun run build:src
-    DATABASE=postgres://user:password@db.example:5432/meowcord bun run apply:migrations
+    DATABASE=postgres://user:password@db.example:5432/versecord bun run apply:migrations
     ```
 
 2. Create the keys, unless you are moving an instance that already has `jwt.key`, `jwt.key.pub` and `federation.key`. Every Worker and any Bun server on the same database need the same JWT pair. The API sends `event.secret` with every event it posts to the gateway. `recovery.key` encrypts the account recovery secrets, so changing it later makes every stored one unreadable. `.gitignore` covers `jwt.key*` and `federation.key*` but not `event.secret`, `recovery.key` or `instance.json`, so don't commit those.
@@ -38,7 +38,7 @@ Run these from the repository root with `bunx wrangler@4.79.0`, the version the 
 3. Create the Hyperdrive config and the R2 bucket, and put the Hyperdrive id the first command prints in place of the zero id in `workers/api/wrangler.jsonc` and `workers/gateway/wrangler.jsonc`.
 
     ```sh
-    bunx wrangler@4.79.0 hyperdrive create meowcord --connection-string="postgres://user:password@db.example:5432/meowcord"
+    bunx wrangler@4.79.0 hyperdrive create versecord --connection-string="postgres://user:password@db.example:5432/versecord"
     bunx wrangler@4.79.0 r2 bucket create meowcord-media
     ```
 

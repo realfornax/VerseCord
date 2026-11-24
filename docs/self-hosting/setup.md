@@ -13,7 +13,7 @@ This page runs a public instance with Docker Compose on one Linux host. [native.
 | `server`   | API, CDN, gateway, voice gateway and web client on port 3001, published on `127.0.0.1:3001`. |
 | `caddy`    | Optional. TLS with automatic certificates, HTTP/1.1, HTTP/2 and HTTP/3. |
 
-Compose builds the `meowcord-server` and `meowcord-sfu` images from this checkout, with Equicord at the commit pinned in `client/vencord.json`. Neither image is published.
+Compose builds the server and SFU images from this checkout, with Equicord at the commit pinned in `client/vencord.json`. Neither image is published.
 
 ## Requirements
 
@@ -24,7 +24,7 @@ Compose builds the `meowcord-server` and `meowcord-sfu` images from this checkou
 ## Install
 
 ```sh
-git clone https://github.com/meowcorded/meowcord.git meowcord && cd meowcord
+git clone https://github.com/realfornax/VerseCord.git versecord && cd versecord
 cp .env.example .env
 $EDITOR .env
 docker compose up -d --build
@@ -47,7 +47,7 @@ Compose passes these from `.env` and refuses to start without the first three. `
 | `WRTC_PORT` | UDP port for all media, 50000 by default. |
 | `TURN_SECRET` | Secret for the TURN relay that carries your users' calls in servers on other instances, from `openssl rand -hex 32`. Empty refuses those calls. |
 | `INSTANCE_NAME` | Name shown in the client, emails, developer portal and status page. It is applied on the first start and whenever you change it here, and otherwise a name set in the admin dashboard stays. |
-| `POSTGRES_USER`, `POSTGRES_DB`, `MEOWCORD_VOLUME_PREFIX` | `meowcord` in `.env.example`, and `fosscord` when absent, the names older installations use. |
+| `POSTGRES_USER`, `POSTGRES_DB`, `VERSECORD_VOLUME_PREFIX` | `versecord` in `.env.example`, and `fosscord` when absent, the names older installations use. |
 | `COMPOSE_PROFILES` | `caddy` starts the bundled Caddy. Empty means you run your own proxy. |
 | `SERVER_PORT` | Port on `127.0.0.1` for your own proxy, 3001 by default. |
 | `CADDY_GLOBAL_OPTIONS` | One line of Caddy global options, such as `email you@example.com` or `local_certs`. |
@@ -72,7 +72,7 @@ Sign in again and open `/admin`. `revoke` removes the right, and other rights st
 
 ## Configuration file
 
-The server and the admin dashboard share `/data/state/config.json` in the `state` volume. Before every start, `scripts/docker-configure.js` writes the public URLs, the voice endpoint `<DOMAIN>/voice`, the trusted proxies and, when their variables are set, the instance name, Cap and SMTP. Unsetting `CAP_*` or `SMTP_*` later leaves the old values, so change those in the dashboard. [CONTRIBUTING.MD](../../CONTRIBUTING.MD#configuration) lists the keys specific to Meowcord. To edit the file by hand:
+The server and the admin dashboard share `/data/state/config.json` in the `state` volume. Before every start, `scripts/docker-configure.js` writes the public URLs, the voice endpoint `<DOMAIN>/voice`, the trusted proxies and, when their variables are set, the instance name, Cap and SMTP. Unsetting `CAP_*` or `SMTP_*` later leaves the old values, so change those in the dashboard. [CONTRIBUTING.MD](../../CONTRIBUTING.MD#configuration) lists the keys specific to VerseCord. To edit the file by hand:
 
 ```sh
 state_volume=$(bun scripts/ops/compose-resource.mjs state)
@@ -87,7 +87,7 @@ Leave `COMPOSE_PROFILES` empty and point your proxy at `127.0.0.1:SERVER_PORT` w
 Outside Docker, the server can serve HTTPS and HTTP/2 itself on a port other than `PORT`, because TLS on the shared port fails under Bun:
 
 ```sh
-TLS_CERT=/etc/ssl/meowcord.pem TLS_KEY=/etc/ssl/meowcord.key HTTPS_PORT=443 bun run start
+TLS_CERT=/etc/ssl/versecord.pem TLS_KEY=/etc/ssl/versecord.key HTTPS_PORT=443 bun run start
 ```
 
 ## Voice
@@ -100,7 +100,7 @@ Set `DOMAIN=http://localhost:3001`, `WRTC_PUBLIC_IP=127.0.0.1`, a free `WRTC_POR
 
 ```sh
 cat > local.env <<EOF
-DOMAIN=meowcord.test
+DOMAIN=versecord.test
 POSTGRES_PASSWORD=local
 WRTC_PUBLIC_IP=127.0.0.1
 COMPOSE_PROFILES=caddy
@@ -108,10 +108,10 @@ CADDY_GLOBAL_OPTIONS=local_certs
 EOF
 docker compose --env-file local.env up -d --build --wait
 docker compose --env-file local.env cp caddy:/data/caddy/pki/authorities/local/root.crt caddy-root.crt
-curl --cacert caddy-root.crt --resolve meowcord.test:443:127.0.0.1 https://meowcord.test/api/ping
+curl --cacert caddy-root.crt --resolve versecord.test:443:127.0.0.1 https://versecord.test/api/ping
 ```
 
-For a browser, add `127.0.0.1 meowcord.test` to `/etc/hosts` and trust `caddy-root.crt`.
+For a browser, add `127.0.0.1 versecord.test` to `/etc/hosts` and trust `caddy-root.crt`.
 
 ## Data and backups
 
@@ -125,7 +125,7 @@ For a browser, add `127.0.0.1 meowcord.test` to `/etc/hosts` and trust `caddy-ro
 | `warp` | The WARP registration. |
 | `caddy_data`, `caddy_config` | Certificates and Caddy's CA. |
 
-Volume names start with `MEOWCORD_VOLUME_PREFIX`. **Losing `state` signs everyone out and loses the keys for encrypted account recovery, managed Official conversations and queued announcements.** Never run `docker compose down -v` on data you want to keep.
+Volume names start with `VERSECORD_VOLUME_PREFIX`. Compose also accepts the legacy `MEOWCORD_VOLUME_PREFIX` when `VERSECORD_VOLUME_PREFIX` is unset or empty. **Losing `state` signs everyone out and loses the keys for encrypted account recovery, managed Official conversations and queued announcements.** Never run `docker compose down -v` on data you want to keep.
 
 ```sh
 mkdir -p dump
@@ -187,7 +187,7 @@ A failed download or check leaves the server stopped. To go back, restore the ar
 `scripts/auto-update.sh` fast-forwards the branch, rebuilds, runs `docker compose up -d` and waits up to 5 minutes for `/api/ping`. A failed build moves the checkout back, a checkout with local commits is left alone, and the script exits with code 1 when a step failed and nothing changed, or when the server doesn't answer after an update. Set `UPDATE_CLIENT=0`, because its client step downloads whatever build discord.com serves, without a backup.
 
 ```cron
-17 */6 * * * UPDATE_CLIENT=0 /srv/meowcord/scripts/auto-update.sh >> /var/log/meowcord-update.log 2>&1
+17 */6 * * * UPDATE_CLIENT=0 /srv/versecord/scripts/auto-update.sh >> /var/log/versecord-update.log 2>&1
 ```
 
 The script also reads `ENV_FILE`, `UPDATE_CODE=0` to skip the code, `SERVER_PORT` from its own environment and not from the env file, `NOTIFY_WEBHOOK` for a Discord-compatible webhook that gets each result, and `LOCK_FILE`.
@@ -227,12 +227,12 @@ On a native install, run `DOTENV_CONFIG_PATH=/path/to/instance/.env bun scripts/
 A single-process instance can use SQLite through Bun's built-in driver instead of PostgreSQL:
 
 ```dotenv
-DATABASE=sqlite:db/meowcord.sqlite
+DATABASE=sqlite:db/versecord.sqlite
 CONFIG_PATH=config.json
 PORT=3001
 ```
 
-Relative paths resolve from the working directory, and absolute ones such as `sqlite:/var/lib/meowcord/meowcord.sqlite` work too. Leave `THREADS` and `DB_SYNC` unset. Changing `DATABASE` doesn't copy data between backends. To back up, stop the server and copy the database with its `-wal` and `-shm` files, the configuration, the storage directory and the recovery key.
+Relative paths resolve from the working directory, and absolute ones such as `sqlite:/var/lib/versecord/versecord.sqlite` work too. Leave `THREADS` and `DB_SYNC` unset. Changing `DATABASE` doesn't copy data between backends. To back up, stop the server and copy the database with its `-wal` and `-shm` files, the configuration, the storage directory and the recovery key.
 
 ## Renamed Compose project
 
@@ -243,7 +243,7 @@ docker compose -p fosscord down
 docker compose up -d --build
 ```
 
-Don't add the `meowcord` values from `.env.example`, because they select new, empty volumes. If the old project had a custom name, set `MEOWCORD_VOLUME_PREFIX` to it first.
+Don't add the `versecord` values from `.env.example`, because they select new, empty volumes. If the old project had a custom name, set `VERSECORD_VOLUME_PREFIX` to it first.
 
 ## Troubleshooting
 

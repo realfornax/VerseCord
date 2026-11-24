@@ -1,6 +1,6 @@
 # VerseCord
 
-VerseCord is a self-hosted chat service with servers, voice and video calls, and end-to-end encrypted direct messages.
+VerseCord is a self-hosted chat service with servers, voice and video calls, and end-to-end encrypted direct messages. It is a fork of [Meowcord](https://github.com/meowcorded/meowcord), which is based on [Spacebar](https://github.com/spacebarchat/server).
 
 VerseCord serves a customized web client powered by Equicord. Sign in with a VerseCord account; no Discord account is required.
 
@@ -16,5 +16,5 @@ See [CONTRIBUTING.MD](CONTRIBUTING.MD) for project conventions and the checks to
 
 ## License
 
-VerseCord is licensed under [AGPL-3.0-only](LICENSE). It builds on work from Meowcord and [Spacebar](https://github.com/spacebarchat/server) contributors.
+VerseCord is licensed under [AGPL-3.0-only](LICENSE).
 

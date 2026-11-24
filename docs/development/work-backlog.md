@@ -1,4 +1,4 @@
-# Meowcord work backlog
+# VerseCord work backlog
 
 This is the task queue for admin, app, compatibility, reliability and performance work. Each entry is a planned investigation or an acceptance target, not a claim that a confirmed bug exists. Source pointers say where to start. Remove an entry once its behavior is verified and shipped, and update the feature doc that describes it.
 
