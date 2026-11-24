@@ -2,7 +2,7 @@
 
 ## Shop availability
 
-Open **System > Shop catalogue** as an operator. Change **Enable Shop**, then choose **Save Shop setting**.
+Open **Site settings > Shop** as an operator. Change **Enable Shop**, then choose **Save Shop setting**.
 Disabling the Shop stops catalogue browsing and new claims. It does not delete cosmetics, unequip them, or prevent access to the admin catalogue. Reload the web client to update Shop navigation.
 
 The dashboard is at `/admin`. Operators see every page, and [setup.md](../self-hosting/setup.md#operator-account) explains how to grant the operator right. Other staff see only the pages, fields and buttons their rights allow. [admin-api-coverage.md](../development/admin-api-coverage.md) maps which API operations the dashboard covers.

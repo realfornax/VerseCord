@@ -1221,6 +1221,10 @@ async function renderSettings(view) {
                     ><a href="#/settings" data-settings-target="settings-registration">Registration</a
                     ><a href="#/settings" data-settings-target="settings-limits">Feature limits</a>
                 </div>
+                <div class="card" id="settings-shop">
+                    <h2>Shop</h2>
+                    <div class="spinner">Loading Shop setting.</div>
+                </div>
                 <div class="card">
                     <h2>External requests</h2>
                     <p class="muted">Local files and cached assets remain available. By default every Discord and Steam download is on and third-party integrations are off.</p>
@@ -1550,6 +1554,30 @@ ${(s.register.blacklistedUsernames ?? []).join("\n")}</textarea>
     $("#loading-preview", view).textContent =
       "Built-in tips and animation will be restored when you save settings.";
   });
+  const shop = $("#settings-shop", view);
+  api("/admin/system/collectibles").then(
+    (settings) => {
+      mount(shop, html`
+        <h2>Shop</h2>
+        <div class="row">
+          <label class="toggle">
+            <input type="checkbox" id="shop-enabled" ${settings.shop_enabled !== false ? raw("checked") : ""} />
+            <span>Enable Shop<span class="hint">Disabling browsing and new claims keeps existing cosmetics.</span></span>
+          </label>
+          <button class="btn small" id="shop-save" type="button">Save Shop setting</button>
+        </div>
+      `);
+      const toggle = $("#shop-enabled", shop);
+      $("#shop-save", shop).addEventListener("click", async (e) => {
+        const enabled = toggle.checked;
+        const saved = await act(e.currentTarget, () =>
+          api("/admin/system/collectibles", { method: "PATCH", body: { enabled } }),
+        );
+        if (saved) toast(saved.shop_enabled ? "Shop enabled" : "Shop disabled", "ok");
+      });
+    },
+    (error) => mount(shop, html`<h2>Shop</h2><p class="muted">Could not load the Shop setting. ${error.message}</p>`),
+  );
   $("#settings-form").addEventListener("submit", async (e) => {
     e.preventDefault();
     const form = e.currentTarget;
@@ -7880,12 +7908,6 @@ function renderCollectiblesStatus(c) {
                 <h2 style="margin:0">Shop catalogue</h2>
                 <button class="btn small" id="collectibles-refresh" type="button">Refresh catalogue</button>
             </div>
-            <div class="row">
-                <label class="toggle"><input type="checkbox" id="shop-enabled" ${c.shop_enabled !== false ? raw("checked") : ""} />
-                    <span>Enable Shop<span class="hint">Disabling browsing and new claims does not remove existing cosmetics.</span></span>
-                </label>
-                <button class="btn small" id="shop-save" type="button">Save Shop setting</button>
-            </div>
             <p class="muted" style="margin:0">
                 ${
                   c.catalog.external_refresh_enabled
@@ -7935,15 +7957,6 @@ function renderCollectiblesStatus(c) {
             </div>
         `,
   );
-  $("#shop-save", el).addEventListener("click", async (e) => {
-    const enabled = $("#shop-enabled", el).checked;
-    const next = await act(e.currentTarget, () =>
-      api("/admin/system/collectibles", { method: "PATCH", body: { enabled } }),
-    );
-    if (!next) return;
-    toast(next.shop_enabled ? "Shop enabled" : "Shop disabled", "ok");
-    renderCollectiblesStatus(next);
-  });
   $("#collectibles-refresh", el).addEventListener("click", async (e) => {
     const next = await act(e.currentTarget, () =>
       api("/admin/system/collectibles/refresh", { method: "POST" }),
