@@ -303,11 +303,12 @@ export async function verifyMfaMethod(user_id: string, type: string, data: unkno
     if (ticket.uid !== user_id || (ticket.typ !== "login" && ticket.typ !== "mfa")) return false;
     if (typeof data === "string" && data.length > 16384) return false;
     if (!GUESSABLE_METHODS.has(type)) return checkMfaMethod(user_id, type, data, ticket);
-    const failures = await RateLimit.findOne({ where: { id: failedCodeKey(user_id) } });
-    if (failures && failures.expires_at.getTime() > Date.now() && failures.hits >= FAILED_CODE_ATTEMPTS) return false;
-    if (await checkMfaMethod(user_id, type, data, ticket)) return true;
-    await RateLimit.hit(failedCodeKey(user_id), user_id, FAILED_CODE_ATTEMPTS, FAILED_CODE_WINDOW_SECONDS);
-    return false;
+    const key = failedCodeKey(user_id);
+    const attempt = await RateLimit.reserve(key, user_id, FAILED_CODE_ATTEMPTS, FAILED_CODE_WINDOW_SECONDS);
+    if (!attempt.admitted) return false;
+    if (!(await checkMfaMethod(user_id, type, data, ticket))) return false;
+    await RateLimit.release(key, attempt.limit.expires_at, FAILED_CODE_ATTEMPTS);
+    return true;
 }
 
 async function checkMfaMethod(user_id: string, type: string, data: unknown, ticket: Ticket) {
@@ -374,6 +375,15 @@ export async function requireMfa(req: Request, opts: { password?: unknown } = {}
         code: 60003,
         mfa: await mfaChallenge(req, req.user_id),
     });
+}
+
+export async function requireMfaIfEnabled(req: Request) {
+    const user = await User.findOneOrFail({ where: { id: req.user_id }, select: { id: true, mfa_enabled: true } });
+    if (!user.mfa_enabled && !(await SecurityKey.count({ where: { user_id: req.user_id } }))) return;
+    const code = req.body?.code;
+    if (typeof code !== "string" || !code || hasRecentMfa(req)) return requireMfa(req);
+    if (!(await throttledCodeAttempt(req.user_id, () => verifyMfaMethod(req.user_id, user.mfa_enabled ? "totp" : "backup", code, { typ: "mfa", uid: req.user_id }))))
+        throw MfaInvalidCode();
 }
 
 export function issueRecentMfa(res: Response, user_id: string) {

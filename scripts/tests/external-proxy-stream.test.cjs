@@ -66,6 +66,7 @@ test("legacy signed media goes through the bounded public fetcher and rejects no
             assert.equal(calls[0].redirects, 0);
             assert.equal(calls[0].limits.maxBytes, 50 * 1024 * 1024);
             assert.equal(calls[0].limits.timeoutMs, 15000);
+            assert.equal(calls[0].limits.firstByteMs, 5000);
         },
     ));
 
@@ -83,6 +84,9 @@ test("legacy signed media passes ranges and media headers through", () =>
             assert.equal(await response.text(), "abc");
             assert.equal(response.headers.get("content-range"), "bytes 0-2/10");
             assert.equal(response.headers.get("content-length"), "3");
+            assert.equal(response.headers.get("content-type"), "video/mp4");
+            assert.equal(response.headers.get("content-security-policy"), "sandbox; default-src 'none'");
+            assert.equal(response.headers.get("x-content-type-options"), "nosniff");
             assert.equal(response.headers.get("x-other"), null);
         },
     ));

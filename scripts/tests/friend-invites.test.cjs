@@ -40,7 +40,7 @@ const load = (rows, invites, events) => {
             ({
                 tslib: { __importDefault: (m) => ({ default: m }) },
                 "node:crypto": require("node:crypto"),
-                typeorm: { In: (v) => v, IsNull: () => null, LessThan: (v) => v, MoreThan: (v) => v },
+                typeorm: { In: (v) => v, IsNull: () => null, LessThan: (v) => v, MoreThan: (v) => v, MoreThanOrEqual: (v) => v },
                 "@spacebar/schemas": { RelationshipType: { FRIEND, BLOCKED } },
                 "@spacebar/util": {
                     Config: { get: () => ({ limits: { user: { maxFriends: 2 } } }) },
@@ -54,7 +54,36 @@ const load = (rows, invites, events) => {
                     User: { findOneOrFail: async ({ where }) => ({ id: where.id, toPublicUser: () => ({ id: where.id }) }) },
                     Invite: {
                         delete: async ({ code }) => invites.delete(code),
-                        update: async ({ code }, values) => Object.assign(invites.get(code), values),
+                        getRepository: () => ({
+                            manager: {
+                                transaction: async (work) =>
+                                    work({
+                                        save: async (relationships) => Promise.all(relationships.map((relationship) => relationship.save())),
+                                        delete: async (_entity, { code, uses }) => {
+                                            if (invites.get(code)?.uses >= uses) invites.delete(code);
+                                        },
+                                        createQueryBuilder: () => {
+                                            let code;
+                                            const query = {
+                                                update: () => query,
+                                                set: () => query,
+                                                where: (_sql, params) => {
+                                                    code = params.code;
+                                                    return query;
+                                                },
+                                                andWhere: () => query,
+                                                execute: async () => {
+                                                    const row = invites.get(code);
+                                                    if (!row || (row.max_uses !== 0 && row.uses >= row.max_uses)) return { affected: 0 };
+                                                    row.uses++;
+                                                    return { affected: 1 };
+                                                },
+                                            };
+                                            return query;
+                                        },
+                                    }),
+                            },
+                        }),
                     },
                 },
             })[name],
@@ -67,7 +96,7 @@ const invite = (overrides = {}) => ({ code: "abc", inviter_id: "1", uses: 0, max
 test("accepting a friend invite makes both users friends and counts the use", async () => {
     const rows = new Map();
     const found = invite();
-    const invites = new Map([["abc", found]]);
+    const invites = new Map([["abc", { ...found }]]);
     const events = [];
     const { acceptFriendInvite } = load(rows, invites, events);
     const result = await acceptFriendInvite(found, "2");
@@ -85,13 +114,23 @@ test("accepting a friend invite makes both users friends and counts the use", as
 test("a friend invite turns pending requests into a friendship and is deleted at its last use", async () => {
     const rows = new Map();
     const found = invite({ uses: 4 });
-    const invites = new Map([["abc", found]]);
+    const invites = new Map([["abc", { ...found }]]);
     const { acceptFriendInvite } = load(rows, invites, []);
     rows.set("1>2", Object.assign(Object.create(null), { from_id: "1", to_id: "2", type: 4, nickname: "pal", save() {}, toPublicRelationship: () => ({}) }));
     await acceptFriendInvite(found, "2");
     assert.equal(rows.get("1>2").type, FRIEND);
     assert.equal(rows.get("1>2").nickname, "pal");
     assert.equal(invites.has("abc"), false);
+});
+
+test("one of two simultaneous redemptions claims the final friend invite use", async () => {
+    const found = invite({ uses: 4 });
+    const rows = new Map();
+    const { acceptFriendInvite } = load(rows, new Map([[found.code, { ...found }]]), []);
+    const results = await Promise.allSettled([acceptFriendInvite({ ...found }, "2"), acceptFriendInvite({ ...found }, "3")]);
+    assert.equal(results.filter((result) => result.status === "fulfilled").length, 1);
+    assert.equal(results.find((result) => result.status === "rejected").reason, errors.UNKNOWN_INVITE);
+    assert.equal(rows.size, 2);
 });
 
 test("a friend invite refuses self, blocks, expired invites and full friend lists", async () => {

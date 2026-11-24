@@ -2,6 +2,13 @@
 
 This page records the adversarial review of October 2026, what it found, what changed, and how to run the checks again. Federation and automod were reviewed separately and are not covered here.
 
+## November 22 updates
+
+- Application edits, deletion and credential resets require a recent second factor for owners who have enabled authenticator codes or security keys. The MFA attempt limit reserves a slot before checking a code and returns it when the code is correct.
+- Adding someone to a DM checks blocks against the existing members and applies the group size limit, contact spam checks and quarantine rules before adding them.
+- Friend invite redemption claims a remaining use atomically. Webhook, interaction, email change and voice resume token checks use constant-time comparisons. Random IDs and codes use the system cryptographic random number generator.
+- The signed external media proxy serves only allowed image, audio and video types with sandbox and no-sniff headers. It allows up to 2 concurrent requests per IP and 8 per process, with a 5-second deadline for upstream response headers.
+
 ## What was reviewed
 
 - Authorization on every REST route. `scripts/dev/route-audit.mjs` walks `src/api/routes` and `src/api/routes_toplevel` and prints each handler with its authentication mode, permission, right and OAuth2 scope. It found 758 handlers in 498 files. `--flagged` lists the handlers with no `route()` middleware, unauthenticated writes, admin routes without a right and OAuth2-reachable routes without a scope check, which were read by hand. Suspicious routes were then tried live with two accounts.

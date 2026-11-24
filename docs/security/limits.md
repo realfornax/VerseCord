@@ -83,7 +83,7 @@ The server resolves each hostname itself, refuses it when any address is private
 | Image proxy                    | 10 MiB                                                      | 5 seconds  |
 | Other callers                  | 5 MiB                                                       | 15 seconds |
 
-A fetch that breaks a limit fails, and the message simply has no embed for that link.
+The `/external` proxy waits up to 5 seconds for response headers and runs up to 2 requests per IP and 8 per process. A link preview that breaks a fetch limit leaves the message without an embed for that link.
 
 ## Images the server decodes
 

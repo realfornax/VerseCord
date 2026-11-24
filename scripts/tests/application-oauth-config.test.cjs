@@ -58,6 +58,7 @@ const fixture = (tags = ["base", "stale", "older"]) => {
             }),
         },
         "@spacebar/database": {
+            User: { findOneOrFail: async () => ({ id: "owner", totp_secret: "" }) },
             Application: {
                 findOneOrFail: async () => app,
                 getRepository: () => ({
@@ -72,7 +73,7 @@ const fixture = (tags = ["base", "stale", "older"]) => {
             },
         },
         "@spacebar/api/util/handlers/ApplicationCommands": {},
-        "@spacebar/api/util": { isAllowedRedirectUri: require("../../dist/api/util/utility/redirectUri.js").isAllowedRedirectUri },
+        "@spacebar/api/util": { isAllowedRedirectUri: require("../../dist/api/util/utility/redirectUri.js").isAllowedRedirectUri, requireMfaIfEnabled: async () => undefined },
     };
     const module = { exports: {} };
     vm.runInNewContext(source, {

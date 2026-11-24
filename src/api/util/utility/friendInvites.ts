@@ -1,7 +1,7 @@
 import { Invite, Relationship, User } from "@spacebar/database";
 import { RelationshipType } from "@spacebar/schemas";
 import { Config, DiscordApiErrors, PresenceUpdateEvent, RelationshipAddEvent, Snowflake, emitEvent, getUserPresence } from "@spacebar/util";
-import { In, IsNull, LessThan, MoreThan } from "typeorm";
+import { In, IsNull, LessThan, MoreThan, MoreThanOrEqual } from "typeorm";
 import crypto from "node:crypto";
 
 export const FRIEND_INVITE_MAX_AGE = 7 * 24 * 60 * 60;
@@ -69,11 +69,19 @@ export async function acceptFriendInvite(invite: Invite, user_id: string) {
         Object.assign(row ?? Relationship.create({ id: Snowflake.generate(), from_id, to_id }), { type: RelationshipType.FRIEND, since, note: null, nickname: row?.nickname });
     const outgoing = befriend(mine, user_id, inviter_id);
     const incoming = befriend(theirs, inviter_id, user_id);
-    await Promise.all([outgoing.save(), incoming.save()]);
-
+    await Invite.getRepository().manager.transaction(async (manager) => {
+        const claimed = await manager
+            .createQueryBuilder()
+            .update(Invite)
+            .set({ uses: () => "uses + 1" })
+            .where("code = :code AND (max_uses = 0 OR uses < max_uses)", { code: invite.code })
+            .andWhere("(max_age = 0 OR expires_at IS NULL OR expires_at >= :now)", { now: new Date() })
+            .execute();
+        if (!claimed.affected) throw DiscordApiErrors.UNKNOWN_INVITE;
+        await manager.save([outgoing, incoming]);
+        if (invite.max_uses !== 0) await manager.delete(Invite, { code: invite.code, uses: MoreThanOrEqual(invite.max_uses) });
+    });
     invite.uses++;
-    if (invite.max_uses !== 0 && invite.uses >= invite.max_uses) await Invite.delete({ code: invite.code });
-    else await Invite.update({ code: invite.code }, { uses: invite.uses });
 
     const [me, inviter, ownPresence, inviterPresence] = await Promise.all([
         User.findOneOrFail({ where: { id: user_id } }),

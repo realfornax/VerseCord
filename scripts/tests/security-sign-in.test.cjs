@@ -67,12 +67,17 @@ function mfaWithStoredFailures() {
         "@spacebar/database": {
             BackupCode: { createQueryBuilder: () => backupQuery },
             RateLimit: {
-                findOne: async ({ where }) => rows.get(where.id) ?? null,
-                hit: async (id, executor_id, max, window) => {
-                    const row = rows.get(id) ?? { id, executor_id, hits: 0, expires_at: new Date(Date.now() + window * 1000) };
+                reserve: async (id, executor_id, max, window) => {
+                    const stored = rows.get(id);
+                    const row = stored && stored.expires_at.getTime() > Date.now() ? stored : { id, executor_id, hits: 0, expires_at: new Date(Date.now() + window * 1000) };
+                    if (row.hits >= max) return { admitted: false, limit: row };
                     row.hits++;
                     rows.set(id, row);
-                    return row;
+                    return { admitted: true, limit: row };
+                },
+                release: async (id, expiresAt) => {
+                    const row = rows.get(id);
+                    if (row?.expires_at === expiresAt && row.hits > 0) row.hits--;
                 },
             },
             SecurityKey: { count: async () => 0 },
@@ -106,5 +111,5 @@ test("wrong two factor codes are capped per account across every ticket", async 
 test("a correct code before the cap is accepted and does not count as a failure", async () => {
     const { mfa, rows } = mfaWithStoredFailures();
     assert.equal(await mfa.verifyMfaMethod("1", "totp", "123456", { typ: "login", uid: "1" }), true);
-    assert.equal(rows.size, 0);
+    assert.equal(rows.get("1:failed-mfa-code")?.hits ?? 0, 0);
 });
