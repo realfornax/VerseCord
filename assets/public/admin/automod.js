@@ -347,7 +347,6 @@ async function renderAutomod(view) {
         <a class="btn small ghost" href="#automod-signup-scoring" data-jump>Signup scoring</a>
         <a class="btn small ghost" href="#automod-ip-caps" data-jump>Accounts per address</a>
         <a class="btn small ghost" href="#automod-login" data-jump>Sign-in</a>
-        <a class="btn small ghost" href="#automod-federation" data-jump>Federation</a>
       </div>
       <div class="stack">
         <div class="stats automod-stats">
@@ -860,21 +859,6 @@ async function renderAutomod(view) {
         <div class="form-actions"><button class="btn primary" type="submit">Save sign-in protection</button></div>
       </form>
 
-      <form class="card" id="automod-federation" aria-labelledby="automod-federation-title">
-        <h2 id="automod-federation-title">Federation</h2>
-        <p class="muted">
-          Accounts from other instances go through the same rules here, and what automod does to them applies on this
-          instance. These settings also tell their home instance, which sees the report in its Reports queue.
-        </p>
-        <div class="stack">
-          ${toggle("reportToHome", s.federation.reportToHome, "Report automod hits to the account's home instance", "At most one report per account and rule an hour. The report carries the rule, the action and the excerpt from the log.")}
-          ${toggle("acceptReports", s.federation.acceptReports, "Accept automod reports from other instances", "They show up in Reports as automod reports from that instance.")}
-        </div>
-        <div class="form-grid" style="margin-top:16px">
-          ${number("reportsPerHourPerInstance", s.federation.reportsPerHourPerInstance, "Reports accepted per instance per hour", "0 accepts none.", 0, 100000)}
-        </div>
-        <div class="form-actions"><button class="btn primary" type="submit">Save federation</button></div>
-      </form>
       </div>
     `,
   );
@@ -1003,10 +987,6 @@ async function renderAutomod(view) {
       },
       "Address limits saved",
     );
-  });
-  $("#automod-federation", view).addEventListener("submit", (event) => {
-    event.preventDefault();
-    save(event.currentTarget, { federation: values(event.currentTarget) }, "Federation settings saved");
   });
   const capLine = (label, part, unit) =>
     html`<p>

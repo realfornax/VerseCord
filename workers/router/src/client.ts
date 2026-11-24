@@ -20,6 +20,7 @@ export interface InstanceSettings {
     logoUrl: string | null;
     helpUrl: string | null;
     activityApplicationHost: string | null;
+    shopEnabled: boolean;
     loadingTips: string[] | null;
     loadingSvg: string | null;
     allowSlowmodeBypass: boolean;
@@ -37,6 +38,7 @@ const DEFAULT_SETTINGS: InstanceSettings = {
     logoUrl: null,
     helpUrl: null,
     activityApplicationHost: null,
+    shopEnabled: true,
     loadingTips: null,
     loadingSvg: null,
     allowSlowmodeBypass: false,
@@ -91,6 +93,7 @@ const settingsFromConfig = (config: InstanceConfig): Partial<InstanceSettings> =
         logoUrl: client?.logo ?? null,
         helpUrl: client?.helpUrl ?? null,
         activityApplicationHost: client?.activityApplicationHost ?? null,
+        shopEnabled: client?.shopEnabled,
         loadingTips: client?.loadingTips ?? null,
         loadingSvg: client?.loadingSvg ?? null,
         allowSlowmodeBypass: limits?.channel?.allowSlowmodeBypass,
@@ -179,6 +182,7 @@ const renderClient = async (client: ClientBundle, settings: InstanceSettings) =>
         instanceName: settings.instanceName,
         instanceId: settings.instanceId,
         activityApplicationHost: settings.activityApplicationHost,
+        shopEnabled: settings.shopEnabled,
         loadingTips: settings.loadingTips,
         loadingSvg: settings.loadingSvg,
         icon: images.icon,
@@ -249,9 +253,11 @@ export const handleClient = async (request: Request, env: RouterEnv): Promise<Re
     const path = url.pathname;
     const settings = await instanceSettings(env);
 
+    if (!settings.shopEnabled && /^\/shop(?:\/|$)/.test(path)) return new Response(null, { status: 302, headers: { Location: "/channels/@me", ...NO_CACHE } });
+
     if (["/assets/favicon.ico", "/favicon.ico", "/assets/favicon.svg", "/favicon.svg"].includes(path)) {
         if (settings.iconUrl) return new Response(null, { status: 302, headers: { Location: settings.iconUrl, ...NO_CACHE } });
-        const favicon = await asset(env, "/assets/branding/favicon.svg", url);
+        const favicon = await asset(env, "/assets/branding/versecord-favicon.svg", url);
         return new Response(favicon.body, { headers: { "Content-Type": "image/svg+xml", ...NO_CACHE } });
     }
     if (path === "/manifest.webmanifest" || path === "/manifest.json")

@@ -1,6 +1,6 @@
 # Server discovery
 
-Discover lists the public servers on this instance. Its Other instances tab lists servers on other approved instances, which [federation.md](federation.md#discover-on-other-instances) covers.
+Discover lists the public servers on this instance. There is no Other instances tab.
 
 ## What gets listed
 

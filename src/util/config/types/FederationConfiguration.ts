@@ -1,6 +1,6 @@
 export class FederationRegistryConfiguration {
-    url: string = "https://meowcord-registry.tiag.workers.dev";
-    publicKey: string = "f0jm9Szfa52pkT0nWkeZK4D1wa3NUZ9hceWaFQLZYrk";
+    url: string = "";
+    publicKey: string = "";
 }
 
 export class FederationDiscoveryConfiguration {
@@ -23,10 +23,10 @@ export class FederationLimitsConfiguration {
 }
 
 export class FederationConfiguration {
-    enabled: boolean = true;
+    enabled: boolean = false;
     registry: FederationRegistryConfiguration = new FederationRegistryConfiguration();
-    announce: boolean = true;
-    announceStats: boolean = true;
+    announce: boolean = false;
+    announceStats: boolean = false;
     allowUnlistedPeers: boolean = false;
     peers: string[] = [];
     contacts: string[] = [];

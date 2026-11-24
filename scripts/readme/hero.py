@@ -7,7 +7,7 @@ from mathutils import Vector
 
 args = sys.argv[sys.argv.index("--") + 1 :]
 root, out, width, samples = args[0], args[1], int(args[2]), int(args[3])
-icon_svg = str(Path(__file__).resolve().parents[2] / "assets/public/branding/meowcord-icon.svg")
+icon_svg = str(Path(__file__).resolve().parents[2] / "assets/public/branding/versecord-icon.svg")
 
 bpy.ops.wm.read_factory_settings(use_empty=True)
 scene = bpy.context.scene

@@ -36,7 +36,6 @@ The External requests card on the Site settings page of the admin dashboard edit
 | S3 | Object storage instead of local files. | An operator configures it. |
 | A Cap Standalone server | Captcha, see [signup.md](../features/signup.md). | Standalone mode configured. |
 | Hosts chosen by apps and users | OAuth callbacks, interaction endpoints, webhook avatars, embedded activities. | Always. |
-| Other instances and the registry | Federation, see [federation.md](../features/federation.md). | Federation on. |
 | Equicord plugins and themes | Whatever each optional plugin or theme contacts. | Users turn them on. |
 
 Email, storage, app callbacks and client plugins ignore `thirdParty`. The client never contacts Discord's telemetry and Sentry endpoints.

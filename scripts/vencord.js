@@ -101,8 +101,10 @@ const copyPlugins = () => {
     fs.mkdirSync(target, { recursive: true });
     if (!fs.existsSync(PLUGINS)) return [];
     const names = fs
-        .readdirSync(PLUGINS)
-        .filter((x) => !x.startsWith("."))
+        .readdirSync(PLUGINS, { withFileTypes: true })
+        .filter((entry) => entry.name !== "fosscordFederation")
+        .filter((entry) => !entry.name.startsWith(".") && (!entry.isDirectory() || fs.readdirSync(path.join(PLUGINS, entry.name)).length > 0))
+        .map((entry) => entry.name)
         .sort();
     for (const name of names) fs.cpSync(path.join(PLUGINS, name), path.join(target, name), { recursive: true });
     return names;

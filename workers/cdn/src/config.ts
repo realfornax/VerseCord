@@ -6,6 +6,7 @@ export interface InstanceConfig {
     cdn?: { endpointPublic?: string | null };
     client?: {
         instanceName?: string;
+        shopEnabled?: boolean;
         icon?: string | null;
         logo?: string | null;
         helpUrl?: string | null;

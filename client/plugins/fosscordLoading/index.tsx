@@ -1,6 +1,6 @@
 import definePlugin from "@utils/types";
 import { React } from "@webpack/common";
-import { MeowcordSpinner } from "../fosscordBranding/art";
+import { VerseCordSpinner } from "../fosscordBranding/art";
 import { FosscordAuthor } from "../fosscordCore/shared";
 
 const env = () => (window as unknown as { GLOBAL_ENV: { LOADING_TIPS?: string[]; LOADING_SVG?: string } }).GLOBAL_ENV;
@@ -31,7 +31,7 @@ export default definePlugin({
                 style={{ width: 144, height: 144, objectFit: "contain" }}
             />
         ) : (
-            <MeowcordSpinner className={original.props.className} setRef={original.props.setRef} onReady={ready} />
+            <VerseCordSpinner className={original.props.className} setRef={original.props.setRef} onReady={ready} />
         );
     },
     patches: [

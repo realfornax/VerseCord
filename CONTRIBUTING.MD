@@ -147,12 +147,6 @@ Run these too when your change touches their area:
 
 Most smoke scripts need `TEST_ACCOUNT_PATH` pointing at the seeded account file, and the admin ones need the operator right. Run each in Chromium, then with `BROWSER=webkit`, one at a time, because they share the account's rate limits.
 
-## Listing an instance
-
-Public instances are in `instances.json`. Add an entry with `id`, the lowercase host with the port when it isn't 443, plus `name`, `url` and `source_url` or `null`. Run `bun scripts/instances-md.mjs` to regenerate `instances.md`, and open a pull request with both files. `scripts/tests/instances-list.test.cjs` fails when they differ. An instance that moved keeps its entry, changes `id` and `url`, and lists the old ids in `previous_ids`, see [change-url.md](docs/self-hosting/change-url.md). [verification.md](docs/self-hosting/verification.md) lists what we check before approving an instance.
-
-The registry is a Cloudflare Worker in `extra/registry` with its own `package.json`. Run `bun install` and `bun run test` in that folder after changing it.
-
 ## Releases
 
 On a clean, committed checkout, `bun run release:pack` writes a source archive and its SHA256 checksum under `releases/`. It refuses tracked runtime configuration and cached client builds. The archive has no Discord client, Equicord build, private configuration, test credentials or databases.

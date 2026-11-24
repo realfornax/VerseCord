@@ -2,6 +2,7 @@ import { Request, Response, Router } from "express";
 import { route } from "@spacebar/api/middlewares";
 import { getDatabase } from "@spacebar/database";
 import { Collectibles, Config } from "@spacebar/util";
+import { HTTPError } from "lambert-server/HTTPError";
 
 const router = Router({ mergeParams: true });
 
@@ -17,6 +18,7 @@ async function status() {
         .catch(() => undefined)) ?? [undefined];
     const { cacheBytes, cacheObjects } = Config.get().cdn.storageQuota;
     return {
+        shop_enabled: Config.get().client.shopEnabled !== false,
         ...(await Collectibles.status()),
         cache: usage && {
             bytes: Number(usage.bytes),
@@ -38,6 +40,21 @@ router.get(
         description: "Where the Shop catalogue comes from, when it was last refreshed and how full the upstream art cache is",
     }),
     async (req: Request, res: Response) => {
+        res.json(await status());
+    },
+);
+
+router.patch(
+    "/",
+    route({
+        right: "OPERATOR",
+        spacebarOnly: true,
+        description: "Enable or disable the Shop without removing existing cosmetics",
+    }),
+    async (req: Request, res: Response) => {
+        const { enabled } = req.body ?? {};
+        if (typeof enabled !== "boolean") throw new HTTPError("enabled must be a boolean", 400);
+        await Config.set({ client: { ...Config.get().client, shopEnabled: enabled } });
         res.json(await status());
     },
 );

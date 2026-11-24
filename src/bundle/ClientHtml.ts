@@ -52,6 +52,7 @@ export interface ClientEnvSettings {
     maxGroupDmRecipients: number;
     emailRequired: boolean;
     joinReason: ClientJoinReason | null;
+    shopEnabled?: boolean;
 }
 
 export const baseGlobalEnv = (parsed: Record<string, unknown>) => Object.fromEntries(Object.entries(parsed).filter(([key]) => !ENDPOINT_KEYS.includes(key)));
@@ -91,6 +92,7 @@ export const clientEnvScript = (base: Record<string, unknown>, settings: ClientE
         LOADING_TIPS: ${json(settings.loadingTips)},
         LOADING_SVG: ${json(settings.loadingSvg)},
         INSTANCE_NAME: ${json(settings.instanceName)},
+        SHOP_ENABLED: ${json(settings.shopEnabled !== false)},
         INSTANCE_ID: ${json(settings.instanceId)},
         INSTANCE_ICON: ${json(settings.icon)},
         INSTANCE_LOGO: ${json(settings.logo)},

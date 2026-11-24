@@ -23,6 +23,7 @@
 !scripts/lib/sticker-assets.cjs
 !extra/pion-sfu
 !docker
+client/plugins/fosscordFederation
 assets/cache
 assets/cache_compressed
 assets/cacheMisses

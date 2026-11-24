@@ -8,7 +8,7 @@ import { instanceDescription, instancePage, openGraphTags } from "./OpenGraph";
 export const escapeHtml = (text: string) => text.replace(/[<>&"']/g, (c) => `&#${c.charCodeAt(0)};`);
 
 export const homePage = (origin?: string) => {
-    const { general, register } = Config.get();
+    const { general, register, client } = Config.get();
     const name = escapeHtml(instanceName());
     const closed = register.disabled || !register.allowNewRegistration;
     const inviteOnly = !closed && register.requireInvite;
@@ -34,13 +34,13 @@ export const homePage = (origin?: string) => {
     const faq: [string, string][] = [
         [
             `What is ${name}?`,
-            `<p>${name} is a chat service with servers, channels, DMs, voice and video. It runs on <a href="https://github.com/meowcorded/meowcord">Meowcord</a>, a self-hosted server that speaks the same protocol as Discord, so the app in your browser looks and works the way you'd expect.</p>`,
+            `<p>${name} is a self-hosted chat service with servers, channels, DMs, voice and video.</p>`,
         ],
         ["Is this Discord?", `<p>No. ${name} is its own service with its own accounts. Your Discord account doesn't work here, and nothing you post here is sent to Discord.</p>`],
         ["How do I join?", joinAnswer],
         [
             "Does anything cost money?",
-            "<p>No. Every account gets every premium feature, every server is at the highest boost level, and every item in the shop is free. There's nothing to buy and no ads.</p>",
+            `<p>No. Every account gets every premium feature and every server is at the highest boost level.${client.shopEnabled === false ? "" : " Every item in the shop is free."} There's nothing to buy and no ads.</p>`,
         ],
         [
             "Who can read my messages?",
@@ -52,7 +52,7 @@ export const homePage = (origin?: string) => {
         ],
         [
             `Who runs ${name}?`,
-            `<p>${name} is run independently by its own operators, not by the Meowcord project.${contact ? ` You can reach them at ${contact}.` : ""} Read the <a href="/terms">terms</a>, the <a href="/privacy">privacy policy</a> and the <a href="/guidelines">community guidelines</a> before you join.</p>`,
+            `<p>${name} is run by its own operators.${contact ? ` You can reach them at ${contact}.` : ""} Read the <a href="/terms">terms</a>, the <a href="/privacy">privacy policy</a> and the <a href="/guidelines">community guidelines</a> before you join.</p>`,
         ],
     ];
 

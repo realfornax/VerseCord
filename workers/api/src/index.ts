@@ -155,15 +155,11 @@ const start = async (env: Env) => {
             timeoutError: (message, cause) => new util.PublicFetchError("timeout", message, cause),
         }),
     );
-    if (env.FEDERATION_KEY) util.FederationKey.load(env.FEDERATION_KEY);
-    const [{ deliverOnSchedule, forwardEvent }, { refreshScamListWhenDue }, { dispatchMessagePush }] = await Promise.all([
-        import("@spacebar/api/util/utility/federationEvents"),
+    const [{ refreshScamListWhenDue }, { dispatchMessagePush }] = await Promise.all([
         import("@spacebar/api/util/utility/scamGuard"),
         import("@spacebar/api/util/utility/notifications"),
     ]);
-    deliverOnSchedule();
     util.onEmitEvent((payload) => (payload.event === "MESSAGE_CREATE" && payload.channel_id ? dispatchMessagePush(payload.data) : undefined));
-    util.onEmitEvent(forwardEvent);
     refreshScamList = refreshScamListWhenDue;
     await util.Email.init().catch((error: Error) => console.warn("[Email] not available:", error.message));
     const bundled = (routes.default ?? routes) as unknown as Parameters<typeof util.useBundledRoutes>[0] & {

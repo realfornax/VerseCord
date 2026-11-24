@@ -1,5 +1,6 @@
 * text=auto
 *.sh -crlf
+docker/entrypoint.sh text eol=lf
 *.nix -crlf
 .husky/pre-commit -crlf
 package-lock.json -diff

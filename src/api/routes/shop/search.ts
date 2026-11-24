@@ -1,6 +1,6 @@
 import { route } from "@spacebar/api/middlewares";
 import { Request, Response, Router } from "express";
-import { Collectibles } from "@spacebar/util";
+import { Collectibles, Config } from "@spacebar/util";
 
 const router = Router({ mergeParams: true });
 
@@ -14,6 +14,11 @@ const number = (value: unknown) => (typeof value === "string" && /^\d+$/.test(va
 // the shop's browse tabs and search box
 router.get("/", route({ responses: { 200: {} } }), async (req: Request, res: Response) => {
     const { item_types, search, sort_type, sort_direction, offset, limit, is_first_party } = req.query;
+    if (Config.get().client.shopEnabled === false)
+        return res.json({
+            skus: [],
+            pagination: { offset: number(offset) ?? 0, limit: Math.min(Math.max(1, number(limit) ?? 50), 200), total: 0, has_more: false },
+        });
     res.json(
         await Collectibles.search({
             item_types: list(item_types),

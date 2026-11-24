@@ -89,18 +89,6 @@ Polls, clips, forwards, components and text-to-speech are not available.
 
 Every message is encrypted to every member at send time, so remaining members can still read messages from someone who left. To check their signatures, the server keeps answering key requests about a former member to current members of that channel only.
 
-Across instances the former member's home answers when the asking instance hosts the group or still has a user in it, and an instance keeps its cached copy of the keys when the home refuses. A third instance that never cached the keys gets nothing once the home's last local member has left the group. ENC-022 in the [work backlog](../development/work-backlog.md) tracks that gap.
-
-## Conversations with users of other instances
-
-A DM or group DM with someone on another [federated](federation.md) instance is encrypted from its first message. The instance where it started hosts it and stores the ciphertext, and each other member's home keeps a mirror. A home never turns encryption off on a mirror and refuses to relay a message or edit without an envelope, so a malicious host can't downgrade the conversation.
-
-These conversations use version 2 envelopes, which sign canonical `@snowflake@instance` ids because local ids differ on each instance. [federation-protocol.md](../development/federation-protocol.md) has the format.
-
-Each instance fetches a remote user's keys from that user's home and caches them for 10 minutes. The home only answers instances that share a DM, a group DM or a friendship with the user, or host a conversation the user is in. Adding someone to an encrypted group DM fails with `E2EE_RECIPIENT_NO_DEVICES` when their instance returns no active device. In default mode a browser trusts both its own instance and the contact's home for key changes, and strict mode pins the key against both.
-
-No instance gets a content key, except through a report.
-
 ## Reporting encrypted messages
 
 When a user reports a message in an encrypted conversation, their browser sends the content keys of the reported message and of the messages around it, at most 50 in all. The server checks that the sender's device belonged to the author and was active at the time, verifies the signature and decrypts the stored ciphertext. It saves up to 4000 characters of text and up to 10 file names in the report and never stores the keys, so a reporter can't change what the message says.

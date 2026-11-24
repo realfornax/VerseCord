@@ -2,7 +2,7 @@ import definePlugin from "@utils/types";
 import { React } from "@webpack/common";
 
 import { FosscordAuthor } from "../fosscordCore/shared";
-import { MeowcordPaths, MeowcordSpinner } from "./art";
+import { VerseCordPaths, VerseCordSpinner } from "./art";
 import { brandMessages } from "./messages";
 
 const env = () => (window as any).GLOBAL_ENV ?? {};
@@ -29,7 +29,7 @@ const Icon = ({ size }: { size: number }) =>
         <img src={env().INSTANCE_ICON} width={size} height={size} alt="" style={{ objectFit: "contain" }} />
     ) : (
         <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true">
-            <MeowcordPaths />
+            <VerseCordPaths />
         </svg>
     );
 
@@ -69,10 +69,10 @@ export default definePlugin({
         imageUrl(env().INSTANCE_ICON) ? (
             <image className={className} href={env().INSTANCE_ICON} x="0" y="0" width="24" height="24" preserveAspectRatio="xMidYMid meet" />
         ) : (
-            <MeowcordPaths className={className} fill={fill} />
+            <VerseCordPaths className={className} fill={fill} />
         ),
 
-    renderSpinner: (props: { className?: string; onReady?: () => void; setRef?: (element: HTMLElement | null) => void }) => <MeowcordSpinner {...props} />,
+    renderSpinner: (props: { className?: string; onReady?: () => void; setRef?: (element: HTMLElement | null) => void }) => <VerseCordSpinner {...props} />,
 
     renderWordmark: (className: string) =>
         imageUrl(env().INSTANCE_LOGO) ? (

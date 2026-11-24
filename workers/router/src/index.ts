@@ -11,7 +11,6 @@ const API_ROOTS = new Set([
     "_spacebar",
     "__development",
     "error-reporting-proxy",
-    "federation",
     "imageproxy",
     "external",
     "klipy",
@@ -49,7 +48,7 @@ const bundledFile = async (request: Request, env: RouterEnv, pathname: string) =
     return undefined;
 };
 
-export const CDN_FALLBACK_ROOTS = new Set(["clan-badges", "embed", "federation-media", "federation-upload", "detectables", "changelogs", "bad-domains", "media"]);
+export const CDN_FALLBACK_ROOTS = new Set(["clan-badges", "embed", "detectables", "changelogs", "bad-domains", "media"]);
 
 const unavailable = (service: string) =>
     new Response(JSON.stringify({ message: `The ${service} service is not bound to this worker`, code: 0 }), {
@@ -68,6 +67,7 @@ const forward = async (binding: Fetcher | undefined, service: string, request: R
 };
 
 export const route = (pathname: string, upgrade: boolean) => {
+    if (/^\/(?:federation(?:-media|-upload)?|federated-voice|(?:\.|%2e)well-known\/meowcord)(?:\/|$)/i.test(pathname)) return "hidden";
     if (upgrade) return "gateway";
     const root = pathname.split("/")[1];
     if (root === "_meowcord") return "hidden";

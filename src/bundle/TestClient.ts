@@ -200,6 +200,7 @@ const buildHtml = () => {
         maxGroupDmRecipients: Config.get().limits.channel.maxGroupDmRecipients,
         emailRequired: Config.get().register.email.required === true,
         joinReason: joinReasonEnv(),
+        shopEnabled: client.shopEnabled,
     });
 
     const patches = fs.existsSync(PATCH_PATH)
@@ -232,7 +233,7 @@ const renderAddFriend = (origin: string, name: string) => {
     const handle = `${name}@${instanceId() ?? new URL(origin).host}`;
     const preview = openGraphTags(origin, {
         title: `Add ${name} on ${instanceName()}`,
-        description: `Add ${handle} as a friend from any Meowcord instance.`,
+        description: `Add ${handle} as a friend on ${instanceName()}.`,
         url: `/add/${encodeURIComponent(name)}`,
     });
     return brandPage(fs.readFileSync(path.join(ASSET_FOLDER_PATH, "public", "add-friend.html"), "utf8"))
@@ -309,6 +310,11 @@ export default function TestClient(app: Application) {
             .map((x) => fs.statSync(x, { throwIfNoEntry: false })?.mtimeMs ?? 0)
             .join();
     let stamp = DEVELOPMENT ? sourceStamp() : "";
+
+    app.get(["/shop", "/shop/{*path}"], (req, res, next) => {
+        if (Config.get().client.shopEnabled !== false) return next();
+        return res.set("Cache-Control", "no-store").redirect("/channels/@me");
+    });
 
     app.get("/add/:name", async (req, res, next) => {
         const name = String(req.params.name);

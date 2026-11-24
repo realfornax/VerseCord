@@ -1,7 +1,8 @@
-export const DEFAULT_INSTANCE_NAME = "Meowcord";
+export const DEFAULT_INSTANCE_NAME = "VerseCord";
 
 export class ClientConfiguration {
     useTestClient: boolean = true;
+    shopEnabled: boolean = true;
     instanceName: string = DEFAULT_INSTANCE_NAME;
     icon: string | null = null;
     logo: string | null = null;

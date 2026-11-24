@@ -1731,7 +1731,7 @@ async function renderUsers(view) {
   const tab = (key, href, label) =>
     html`<a class="btn small ${current === key ? "primary" : ""}" href="${href}" ${current === key ? raw('aria-current="page"') : ""}>${label}</a>`;
   const tabs = html`<div class="row view-switch" role="navigation" aria-label="Users views">
-    ${tab("", "#/users", "Accounts")} ${tab("remote", "#/users/remote", "Other instances")} ${tab("ips", "#/users/ips", "IP addresses")} ${canSeeBans ? tab("bans", "#/users/bans", "IP bans") : ""}
+    ${tab("", "#/users", "Accounts")} ${tab("ips", "#/users/ips", "IP addresses")} ${canSeeBans ? tab("bans", "#/users/bans", "IP bans") : ""}
   </div>`;
   if (sub === "ips") return renderIps(view, tabs);
   if (sub === "bans") return renderIpBans(view, tabs);
@@ -6796,7 +6796,6 @@ async function renderGuilds(view) {
             </div>
             <div class="row view-switch" role="navigation" aria-label="Servers views">
                 <a class="btn small ${remote ? "" : "primary"}" href="#/guilds" ${remote ? "" : raw('aria-current="page"')}>Servers</a>
-                <a class="btn small ${remote ? "primary" : ""}" href="#/guilds/remote" ${remote ? raw('aria-current="page"') : ""}>Other instances</a>
             </div>
             <div class="row" style="margin-bottom:12px">
                 <label class="grow list-search"
@@ -7881,6 +7880,12 @@ function renderCollectiblesStatus(c) {
                 <h2 style="margin:0">Shop catalogue</h2>
                 <button class="btn small" id="collectibles-refresh" type="button">Refresh catalogue</button>
             </div>
+            <div class="row">
+                <label class="toggle"><input type="checkbox" id="shop-enabled" ${c.shop_enabled !== false ? raw("checked") : ""} />
+                    <span>Enable Shop<span class="hint">Disabling browsing and new claims does not remove existing cosmetics.</span></span>
+                </label>
+                <button class="btn small" id="shop-save" type="button">Save Shop setting</button>
+            </div>
             <p class="muted" style="margin:0">
                 ${
                   c.catalog.external_refresh_enabled
@@ -7930,6 +7935,15 @@ function renderCollectiblesStatus(c) {
             </div>
         `,
   );
+  $("#shop-save", el).addEventListener("click", async (e) => {
+    const enabled = $("#shop-enabled", el).checked;
+    const next = await act(e.currentTarget, () =>
+      api("/admin/system/collectibles", { method: "PATCH", body: { enabled } }),
+    );
+    if (!next) return;
+    toast(next.shop_enabled ? "Shop enabled" : "Shop disabled", "ok");
+    renderCollectiblesStatus(next);
+  });
   $("#collectibles-refresh", el).addEventListener("click", async (e) => {
     const next = await act(e.currentTarget, () =>
       api("/admin/system/collectibles/refresh", { method: "POST" }),

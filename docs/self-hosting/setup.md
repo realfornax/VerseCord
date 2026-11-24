@@ -46,7 +46,6 @@ Compose passes these from `.env` and refuses to start without the first three. `
 | `WRTC_PUBLIC_IP` | Public IPv4 address or host name that clients send media to. Behind NAT, use the outside address and forward the voice port. A host name is resolved once at startup. |
 | `WRTC_PORT` | UDP port for all media, 50000 by default. |
 | `TURN_SECRET` | Secret for the TURN relay that carries your users' calls in servers on other instances, from `openssl rand -hex 32`. Empty refuses those calls. |
-| `TURN_PUBLIC_IP`, `TURN_PORT`, `TURN_RELAY_PORT_MIN`, `TURN_RELAY_PORT_MAX` | `WRTC_PUBLIC_IP`, 3478, 49160 and 49200 by default. [federation.md](../features/federation.md#turn-relay) lists every relay variable. |
 | `INSTANCE_NAME` | Name shown in the client, emails, developer portal and status page. It is applied on the first start and whenever you change it here, and otherwise a name set in the admin dashboard stays. |
 | `POSTGRES_USER`, `POSTGRES_DB`, `MEOWCORD_VOLUME_PREFIX` | `meowcord` in `.env.example`, and `fosscord` when absent, the names older installations use. |
 | `COMPOSE_PROFILES` | `caddy` starts the bundled Caddy. Empty means you run your own proxy. |
@@ -93,7 +92,7 @@ TLS_CERT=/etc/ssl/meowcord.pem TLS_KEY=/etc/ssl/meowcord.key HTTPS_PORT=443 bun 
 
 ## Voice
 
-Clients send media straight to `WRTC_PUBLIC_IP:WRTC_PORT` over UDP, so a client whose network blocks outgoing UDP can't join calls on your instance. The TURN relay only carries calls in servers on other instances. Leave `THREADS` unset. When the SFU restarts, clients in running calls reconnect.
+Clients send media straight to `WRTC_PUBLIC_IP:WRTC_PORT` over UDP, so a client whose network blocks outgoing UDP can't join calls on your instance. Leave `THREADS` unset. When the SFU restarts, clients in running calls reconnect.
 
 ## Local trial
 
@@ -196,6 +195,8 @@ The script also reads `ENV_FILE`, `UPDATE_CODE=0` to skip the code, `SERVER_PORT
 ## Optional content
 
 ### Shop catalogue
+
+The operator can turn off Shop browsing and new claims under **Admin > System > Shop catalogue**. Existing cosmetics and the admin catalogue are kept.
 
 The free Shop lists `assets/collectibles.json` and `assets/profile-effects.json`, the JSON arrays that Discord's `collectibles-categories` and profile effects endpoints return. Neither file ships, so a new instance has an empty Shop. Mount them into the server service and restart it:
 

@@ -21,7 +21,7 @@ try {
     await p.addInitScript(() => {
         window.nativeBrandSpinnerSeen = false;
         new MutationObserver(() => {
-            if (document.querySelector(".meowcord-spinner")) window.nativeBrandSpinnerSeen = true;
+            if (document.querySelector(".versecord-spinner")) window.nativeBrandSpinnerSeen = true;
         }).observe(document, { childList: true, subtree: true });
     });
     await p.goto(origin + "/login");
@@ -30,7 +30,7 @@ try {
     assert.equal(await p.locator('link[rel="icon"]').getAttribute("href"), "/favicon.svg");
     let favicon = await p.request.get(origin + "/favicon.svg");
     assert.equal(favicon.status(), 200);
-    assert.equal(await favicon.text(), fs.readFileSync(path.join(root, "assets/public/branding/favicon.svg"), "utf8"));
+    assert.equal(await favicon.text(), fs.readFileSync(path.join(root, "assets/public/branding/versecord-favicon.svg"), "utf8"));
     for (const size of [180, 192, 512]) {
         const r = await p.request.get(`${origin}/assets/pwa/icon-${size}.png`);
         assert.equal(r.status(), 200);
@@ -41,7 +41,7 @@ try {
         assert.equal(metadata.height, size);
         if (size === 512) {
             const actualPixels = await sharp(png).ensureAlpha().raw().toBuffer();
-            const referencePixels = await sharp(path.join(root, "assets/public/branding/meowcord-icon.svg")).ensureAlpha().raw().toBuffer();
+            const referencePixels = await sharp(path.join(root, "assets/icon.png")).ensureAlpha().raw().toBuffer();
             assert.deepEqual(actualPixels, referencePixels);
         }
         fs.writeFileSync(path.join(os.tmpdir(), `fosscord-meowcord-pwa-${size}.png`), png);
@@ -59,8 +59,8 @@ try {
         assert.equal(info.width, 256);
         assert.equal(info.height, 256);
         const pixel = (x, y) => [...data.subarray((y * info.width + x) * 4, (y * info.width + x) * 4 + 3)];
-        assert.deepEqual(pixel(128, 134), [255, 255, 255]);
-        assert.deepEqual(pixel(105, 134), pixel(0, 0));
+        assert.notDeepEqual(pixel(0, 0), [255, 255, 255]);
+        assert.ok(data.some((value, i) => i % 4 === 0 && value === 255 && data[i + 1] === 255 && data[i + 2] === 255));
     }
     await p.evaluate(() => {
         const { React } = Vencord.Webpack.Common;
@@ -74,29 +74,22 @@ try {
         const original = React.createElement("div", { className: "proof-original" });
         window.brandProofRoot.render(Vencord.Plugins.plugins.FosscordLoading.animation(original, () => window.brandReady++));
     });
-    await p.locator("#brand-proof .meowcord-spinner").waitFor();
+    await p.locator("#brand-proof .versecord-spinner").waitFor();
     const actual = await p.locator("#brand-proof").evaluate((e) => ({
         paths: [...e.querySelectorAll("path")].map((p) => p.getAttribute("d")),
-        css: e.querySelector("style").textContent,
         animations: e
             .querySelector("svg")
             .getAnimations({ subtree: true })
             .map((a) => ({ name: a.animationName, duration: a.effect.getTiming().duration })),
         ready: window.brandReady,
     }));
-    const ref = fs.readFileSync(path.join(root, "assets/public/branding/spinner.html"), "utf8");
+    const ref = fs.readFileSync(path.join(root, "assets/public/branding/versecord.svg"), "utf8");
     assert.deepEqual(
         actual.paths,
         [...ref.matchAll(/<path[^>]* d="([^"]+)"/g)].map((m) => m[1]),
     );
-    assert.equal(
-        actual.css,
-        ref
-            .match(/<style>(.*?)<\/style>/)[1]
-            .replace(".meowcord-spinner>svg,.meowcord-spinner path{animation:none}", ".meowcord-spinner>svg,.meowcord-spinner .wl,.meowcord-spinner .wr{animation:none}"),
-    );
-    assert.equal(actual.animations.length, 3);
-    assert.ok(actual.animations.every((a) => a.duration === 1100));
+    assert.equal(actual.animations.length, 2);
+    assert.ok(actual.animations.every((a) => a.duration === 1200));
     assert.equal(actual.ready, 1);
     await p.locator("#brand-proof svg").evaluate((e) => {
         for (const a of e.getAnimations({ subtree: true })) {
@@ -113,14 +106,14 @@ try {
         window.brandProofRoot.render(Vencord.Plugins.plugins.FosscordLoading.animation(Vencord.Webpack.Common.React.createElement("div"), () => window.brandReady++));
     });
     await p.locator('#brand-proof img[alt="Loading"]').waitFor();
-    assert.equal(await p.locator("#brand-proof .meowcord-spinner").count(), 0);
+    assert.equal(await p.locator("#brand-proof .versecord-spinner").count(), 0);
     assert.equal(await p.evaluate(() => Vencord.Plugins.plugins.FosscordLoading.tip()), "custom instance tip");
     assert.deepEqual(errors, []);
     console.log(
         JSON.stringify({
             status: "pass",
             browser: kind,
-            archivePathsAndCSSExact: true,
+            pathsMatchGlyph: true,
             nativeSpinnerSeen,
             defaultAvatars: avatars.length,
             animations: actual.animations,

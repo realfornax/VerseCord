@@ -14,6 +14,13 @@ const overridePath = process.env.CONFIG_PATH ?? "";
 let config: ConfigValue;
 let pairs: ConfigEntity[];
 
+function enforceLocalInstance(value: ConfigValue) {
+    value.federation.enabled = false;
+    value.federation.announce = false;
+    value.federation.announceStats = false;
+    return value;
+}
+
 // TODO: use events to inform about config updates
 // Config keys are separated with _
 
@@ -73,7 +80,7 @@ async function loadConfig() {
     if (process.env.IPDATA_API_KEY_PATH) config.security.ipdataApiKey = await Config.readSecret("IPDATA_API_KEY_PATH");
     if (process.env.REQUEST_SIGNATURE_PATH) config.security.requestSignature = await Config.readSecret("REQUEST_SIGNATURE_PATH");
     if (process.env.KLIPY_API_KEY_PATH) config.integrations.gifs.klipy.apiKeyPath = process.env.KLIPY_API_KEY_PATH;
-    return config;
+    return enforceLocalInstance(config);
 }
 
 export class Config {
@@ -87,7 +94,7 @@ export class Config {
 
     public static async refresh(overrides?: object) {
         const loaded = await loadConfig();
-        config = overrides ? OrmUtils.mergeDeep(loaded, overrides) : loaded;
+        config = enforceLocalInstance(overrides ? OrmUtils.mergeDeep(loaded, overrides) : loaded);
         return config;
     }
 
@@ -130,7 +137,7 @@ export class Config {
     }
     public static set(val: Partial<ConfigValue>) {
         if (!config || !val) return;
-        config = OrmUtils.mergeDeep(config, val);
+        config = enforceLocalInstance(OrmUtils.mergeDeep(config, val));
 
         return applyConfig(config);
     }
@@ -148,6 +155,8 @@ const StaleDefaults: [string, JsonValue, JsonValue][] = [
     ["general.instanceDescription", "This is a Spacebar instance made in the pre-release days", null],
     ["client.instanceName", "Fosscord", DEFAULT_INSTANCE_NAME],
     ["general.instanceName", "Fosscord", DEFAULT_INSTANCE_NAME],
+    ["client.instanceName", "Meowcord", DEFAULT_INSTANCE_NAME],
+    ["general.instanceName", "Meowcord", DEFAULT_INSTANCE_NAME],
 ];
 
 function replaceStaleDefaults(config: ConfigValue) {

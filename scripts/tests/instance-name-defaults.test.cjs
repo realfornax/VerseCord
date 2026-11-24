@@ -42,23 +42,23 @@ function currentRevision() {
     return config.defaultsRevision;
 }
 
-test("fresh client and general defaults use the configured Meowcord name", () => {
-    assert.equal(client.DEFAULT_INSTANCE_NAME, "Meowcord");
-    assert.equal(new client.ClientConfiguration().instanceName, "Meowcord");
-    assert.equal(new GeneralConfiguration().instanceName, "Meowcord");
+test("fresh client and general defaults use VerseCord", () => {
+    assert.equal(client.DEFAULT_INSTANCE_NAME, "VerseCord");
+    assert.equal(new client.ClientConfiguration().instanceName, "VerseCord");
+    assert.equal(new GeneralConfiguration().instanceName, "VerseCord");
 });
 
 test("previous default names migrate once on a serialized older configuration", () => {
     const config = JSON.parse(
         JSON.stringify({
-            defaultsRevision: currentRevision() - 2,
+            defaultsRevision: currentRevision() - 4,
             client: { instanceName: "Fosscord", icon: "/owned.png" },
             general: { instanceName: "Fosscord" },
         }),
     );
     migrate(config);
-    assert.equal(config.client.instanceName, "Meowcord");
-    assert.equal(config.general.instanceName, "Meowcord");
+    assert.equal(config.client.instanceName, "VerseCord");
+    assert.equal(config.general.instanceName, "VerseCord");
     assert.equal(config.client.icon, "/owned.png");
     assert.equal(config.defaultsRevision, currentRevision());
     config.client.instanceName = "Fosscord";
@@ -72,11 +72,11 @@ test("default-name migration preserves custom client and general names independe
     for (const names of [
         ["Owned chat", "Owned server"],
         ["Owned chat", "Fosscord"],
-        ["Fosscord", "Owned server"],
+        ["Meowcord", "Owned server"],
     ]) {
         const config = { client: { instanceName: names[0] }, general: { instanceName: names[1] } };
         migrate(config);
-        assert.equal(config.client.instanceName, names[0] === "Fosscord" ? "Meowcord" : names[0]);
-        assert.equal(config.general.instanceName, names[1] === "Fosscord" ? "Meowcord" : names[1]);
+        assert.equal(config.client.instanceName, ["Fosscord", "Meowcord"].includes(names[0]) ? "VerseCord" : names[0]);
+        assert.equal(config.general.instanceName, ["Fosscord", "Meowcord"].includes(names[1]) ? "VerseCord" : names[1]);
     }
 });

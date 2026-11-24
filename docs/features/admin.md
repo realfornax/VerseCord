@@ -1,5 +1,10 @@
 # Admin dashboard
 
+## Shop availability
+
+Open **System > Shop catalogue** as an operator. Change **Enable Shop**, then choose **Save Shop setting**.
+Disabling the Shop stops catalogue browsing and new claims. It does not delete cosmetics, unequip them, or prevent access to the admin catalogue. Reload the web client to update Shop navigation.
+
 The dashboard is at `/admin`. Operators see every page, and [setup.md](../self-hosting/setup.md#operator-account) explains how to grant the operator right. Other staff see only the pages, fields and buttons their rights allow. [admin-api-coverage.md](../development/admin-api-coverage.md) maps which API operations the dashboard covers.
 
 ## Pages
@@ -10,7 +15,6 @@ The dashboard is at `/admin`. Operators see every page, and [setup.md](../self-h
 | Instance         | Site settings          | `OPERATOR`        | Instance configuration, see [Site settings](#site-settings).                                        |
 | Instance         | Official inbox         | `OPERATOR`        | Direct messages to and from the official account.                                                   |
 | Instance         | Announcements          | `OPERATOR`        | Encrypted announcements from the official account, see [announcements.md](announcements.md).        |
-| Instance         | Federation             | `OPERATOR`        | Peers, blocks and federated servers, see [federation.md](federation.md).                            |
 | People & servers | Users & profiles       | `VIEW_USERS`      | Accounts, addresses and IP bans.                                                                    |
 | People & servers | Instance invites       | `VIEW_USERS`      | Signup invites and invite trees, see [invites.md](invites.md).                                      |
 | People & servers | Servers                | `MANAGE_GUILDS`   | Servers, their channels and roles.                                                                  |
