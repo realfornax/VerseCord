@@ -1725,16 +1725,6 @@ td[data-select] input {
   height: 18px;
 }
 
-.invite-tree {
-  margin: 0;
-  padding-left: 18px;
-}
-
-.invite-tree li {
-  margin-block: 4px;
-  overflow-wrap: break-word;
-}
-
 .visually-hidden {
   position: absolute;
   inset-inline-start: 0;

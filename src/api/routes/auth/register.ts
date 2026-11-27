@@ -9,16 +9,12 @@ import {
     assertRegistrationIpCap,
     captchaKeyFrom,
     checkRegistrationCaptcha,
-    claimInvite,
-    findUsableInvite,
     instanceAutomodMatch,
     normalizeIp,
     onGuildMemberJoin,
     recordAutomodAction,
-    recordInvitedUser,
     recordRegistrationForIp,
     registrationCapEndpoint,
-    releaseInvite,
 } from "@spacebar/api/util";
 import { assertIdentityNameAllowed } from "@spacebar/util/util/IdentityModeration";
 import { assessSignup, logSignupAssessment, signupPasswordKey } from "@spacebar/api/util/utility/signupGuard";
@@ -30,8 +26,6 @@ import { BcryptWorkerPool } from "@spacebar/util/util/workers/bcrypt/BcryptWorke
 import { Stopwatch, TimeSpan, trimSpecial } from "@spacebar/extensions";
 
 const router: Router = Router({ mergeParams: true });
-
-const inviteError = (code: string, message: string) => FieldErrors({ username: { code, message }, instance_invite: { code, message } });
 
 const recentlyBlockedIps: {
     [ip: string]: {
@@ -331,12 +325,6 @@ router.post(
         }
         logTrace("Password checks");
 
-        const instanceInvite = typeof body.instance_invite === "string" ? body.instance_invite.trim() : "";
-        const inviteRequired = !regTokenUsed && register.requireInvite;
-        if (inviteRequired && !instanceInvite) throw inviteError("INVITE_ONLY", "This instance is invite-only. Open the invite link a member sent you to sign up.");
-        if (inviteRequired && !(await findUsableInvite(instanceInvite)))
-            throw inviteError("INVALID_INVITE", "This invite is invalid, expired or used up. Ask for a new invite link.");
-
         if (
             !regTokenUsed &&
             limits.absoluteRate.register.enabled &&
@@ -399,17 +387,7 @@ router.post(
             if (claimed) return res.status(400).json(claimed);
         }
 
-        const claimedInvite = instanceInvite ? await claimInvite(instanceInvite) : null;
-        if (inviteRequired && !claimedInvite) throw inviteError("INVALID_INVITE", "This invite is invalid, expired or used up. Ask for a new invite link.");
-
-        let user: User;
-        try {
-            user = await User.register({ ...body, username: body.username, req, registration_ip: normalizeIp(ip) });
-        } catch (error) {
-            if (claimedInvite) await releaseInvite(claimedInvite.code);
-            throw error;
-        }
-        if (claimedInvite) await recordInvitedUser(user.id, claimedInvite);
+        const user = await User.register({ ...body, username: body.username, req, registration_ip: normalizeIp(ip) });
         logTrace("Register user");
         await recordRegistrationForIp(ip);
 
@@ -425,7 +403,6 @@ router.post(
             });
 
         if (body.invite) {
-            // await to fail if the invite doesn't exist (necessary for requireInvite to work properly) (username only signups are possible)
             const inviteCode = await Invite.resolveCode(body.invite);
             const target = await Invite.findOne({ where: { code: inviteCode }, relations: { guild: true } });
             const paused = target?.guild?.incidents_data?.invites_disabled_until;

@@ -1,5 +1,5 @@
 import { HTTPError } from "lambert-server/HTTPError";
-import { Column, Entity, EntityManager, Index, IsNull, JoinColumn, ManyToOne, OneToMany } from "typeorm";
+import { Column, Entity, EntityManager, In, Index, IsNull, JoinColumn, ManyToOne, OneToMany } from "typeorm";
 import { DmChannelDTO } from "../../util/dtos";
 import { ChannelCreateEvent, ChannelRecipientRemoveEvent, ThreadCreateEvent, ThreadMembersUpdateEvent } from "../../util/interfaces";
 import { InvisibleCharacters, Snowflake, emitEvent, getPermission, Permissions, Config, DiscordApiErrors, FieldErrors } from "@spacebar/util/util";
@@ -380,6 +380,8 @@ export class Channel extends BaseClass {
 			throw new HTTPError("Recipient/s not found");
 		}
 		**/
+
+        if (recipients.length && (await User.exists({ where: { id: In(recipients), system: true } }))) throw DiscordApiErrors.CANNOT_MESSAGE_USER;
 
         const type = recipients.length > 1 ? ChannelType.GROUP_DM : ChannelType.DM;
 

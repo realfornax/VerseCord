@@ -1,10 +1,12 @@
 # Signup and captcha
 
-New accounts sign up with a username and a password and solve a Cap captcha. [invites.md](invites.md) covers invite-only signup, and [automod.md](automod.md) covers join reasons, manual approval, signup scoring and the limits per address.
+New accounts sign up with a username and a password and solve a Cap captcha. [automod.md](automod.md) covers join reasons, manual approval, signup scoring and the limits per address.
+
+Signup follows the registration switches in **Admin > Site settings > Registration**. If you previously required an instance invite, switch off **Allow new registrations** to keep public signup closed. Historical invite records remain in the database.
 
 ## Cap verification
 
-Registration needs a solved [Cap](https://trycap.dev/guide/capjs-core) proof by default, and an instance invite doesn't replace it. The Captcha card in Site settings has these settings:
+Registration needs a solved [Cap](https://trycap.dev/guide/capjs-core) proof by default. The Captcha card in Site settings has these settings:
 
 | Setting                                   | Default | Effect                                                                 |
 | ----------------------------------------- | ------- | ---------------------------------------------------------------------- |

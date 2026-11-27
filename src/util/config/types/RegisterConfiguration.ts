@@ -1,10 +1,4 @@
-import {
-    DateOfBirthConfiguration,
-    InstanceInviteConfiguration,
-    PasswordConfiguration,
-    RegistrationEmailConfiguration,
-    RegistrationJoinReasonConfiguration,
-} from "./subconfigurations";
+import { DateOfBirthConfiguration, PasswordConfiguration, RegistrationEmailConfiguration, RegistrationJoinReasonConfiguration } from "./subconfigurations";
 
 export class RegisterConfiguration {
     email: RegistrationEmailConfiguration = new RegistrationEmailConfiguration();
@@ -14,9 +8,6 @@ export class RegisterConfiguration {
     requireApproval: boolean = false;
     disabled: boolean = false;
     requireCaptcha: boolean = true;
-    requireInvite: boolean = false;
-    instanceInvites: InstanceInviteConfiguration = new InstanceInviteConfiguration();
-    guestsRequireInvite: boolean = true;
     allowNewRegistration: boolean = true;
     allowMultipleAccounts: boolean = true;
     blockIpDataCoThreatTypes: string[] = ["tor", "icloud_relay", "proxy", "datacenter", "anonymous", "known_attacker", "known_abuser", "threat"]; // matching ipdata's threat.is_* fields as of 2025/11/30, minus bogon

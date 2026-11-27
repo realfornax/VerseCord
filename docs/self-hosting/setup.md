@@ -199,7 +199,7 @@ The script also reads `ENV_FILE`, `UPDATE_CODE=0` to skip the code, `SERVER_PORT
 
 ### Shop catalogue
 
-The operator can turn off Shop browsing and new claims under **Admin > System > Shop catalogue**. Existing cosmetics and the admin catalogue are kept.
+The operator can turn off Shop browsing and new claims under **Admin > Site settings > Shop**. Existing cosmetics and the admin catalogue are kept.
 
 The free Shop lists `assets/collectibles.json` and `assets/profile-effects.json`, the JSON arrays that Discord's `collectibles-categories` and profile effects endpoints return. Neither file ships, so a new instance has an empty Shop. Mount them into the server service and restart it:
 

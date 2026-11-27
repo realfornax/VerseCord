@@ -1,9 +1,10 @@
 import { In } from "typeorm";
-import { Channel, Member, Message, Relationship, User, UserSettingsProtos } from "@spacebar/database";
+import { Channel, Member, Message, Recipient, Relationship, User, UserSettingsProtos } from "@spacebar/database";
 import { ChannelCreateEvent, ChannelUpdateEvent, DiscordApiErrors, DmChannelDTO, emitEvent } from "@spacebar/util";
 import { ChannelType, RelationshipType, UserFlags } from "@spacebar/schemas";
 
 export async function assertCanSendDirectMessage(channel: Channel, senderId: string): Promise<string[]> {
+    if (channel.type === ChannelType.GROUP_DM && (await Recipient.hasSystemRecipient(channel.id, senderId))) throw DiscordApiErrors.CANNOT_MESSAGE_USER;
     if (channel.type !== ChannelType.DM) return [];
     const recipientId = channel.recipients?.find((r) => r.user_id !== senderId)?.user_id;
     if (!recipientId) return [];
@@ -11,14 +12,7 @@ export async function assertCanSendDirectMessage(channel: Channel, senderId: str
     const findUser = (id: string) => (loaded.has(id) ? loaded.get(id)! : User.findOne({ where: { id }, select: { id: true, bot: true, system: true, flags: true } }));
 
     const target = await findUser(recipientId);
-    let officialReply = false;
-    if (target?.system || (Number(target?.flags ?? 0) & Number(UserFlags.FLAGS.SYSTEM)) !== 0) {
-        const members = channel.recipients?.map((recipient) => recipient.user_id) ?? [];
-        if (channel.guild_id || members.length !== 2 || !members.includes(senderId) || new Set(members).size !== 2) throw DiscordApiErrors.CANNOT_MESSAGE_USER;
-        const { getSystemAccount } = await import("../utility/systemAccounts.js");
-        officialReply = recipientId === (await getSystemAccount("official")).id;
-        if (!officialReply) throw DiscordApiErrors.CANNOT_MESSAGE_USER;
-    }
+    if (target?.system || (Number(target?.flags ?? 0) & Number(UserFlags.FLAGS.SYSTEM)) !== 0) throw DiscordApiErrors.CANNOT_MESSAGE_USER;
 
     const relationships = await Relationship.find({
         where: [
@@ -27,7 +21,7 @@ export async function assertCanSendDirectMessage(channel: Channel, senderId: str
         ],
     });
     if (relationships.some((r) => r.type === RelationshipType.BLOCKED)) throw DiscordApiErrors.CANNOT_MESSAGE_USER;
-    if (officialReply || relationships.some((r) => r.type === RelationshipType.FRIEND)) return [];
+    if (relationships.some((r) => r.type === RelationshipType.FRIEND)) return [];
 
     const [sender, recipient] = await Promise.all([senderId, recipientId].map(findUser));
     if (!sender || !recipient || sender.system || recipient.system || recipient.bot) return [];

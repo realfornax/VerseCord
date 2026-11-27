@@ -6192,11 +6192,6 @@
                         "maxLength": 64,
                         "type": "string"
                     },
-                    "instance_invite": {
-                        "description": "Instance invite code, needed when the instance is invite-only",
-                        "maxLength": 64,
-                        "type": "string"
-                    },
                     "date_of_birth": {
                         "type": "string",
                         "maxLength": 32
@@ -6218,12 +6213,6 @@
                     "global_name": {
                         "maxLength": 32,
                         "type": "string"
-                    },
-                    "pride_badges": {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        }
                     },
                     "join_reason": {
                         "description": "Why the person wants to join, when the instance asks for it",
@@ -8143,23 +8132,6 @@
                 "required": [
                     "invalid_push_sync_tokens"
                 ]
-            },
-            "InstanceInviteCreateSchema": {
-                "type": "object",
-                "properties": {
-                    "max_uses": {
-                        "description": "How many people can join with the invite",
-                        "type": "integer",
-                        "minimum": 1,
-                        "maximum": 1000
-                    },
-                    "max_age_seconds": {
-                        "description": "Seconds until the invite expires",
-                        "type": "integer",
-                        "minimum": 0,
-                        "maximum": 31536000
-                    }
-                }
             },
             "PublicMessageListResponse": {
                 "type": "array",
@@ -10148,6 +10120,9 @@
                             "discordBadDomains": {
                                 "type": "boolean"
                             },
+                            "steamAssetFallback": {
+                                "type": "boolean"
+                            },
                             "thirdParty": {
                                 "type": "boolean"
                             }
@@ -10327,39 +10302,6 @@
                             },
                             "allowNewRegistration": {
                                 "type": "boolean"
-                            },
-                            "requireInvite": {
-                                "type": "boolean"
-                            },
-                            "guestsRequireInvite": {
-                                "type": "boolean"
-                            },
-                            "instanceInvites": {
-                                "type": "object",
-                                "properties": {
-                                    "perUser": {
-                                        "type": "integer",
-                                        "minimum": 0,
-                                        "maximum": 10000
-                                    },
-                                    "minAccountAgeDays": {
-                                        "type": "integer",
-                                        "minimum": 0,
-                                        "maximum": 3650
-                                    },
-                                    "maxUsesPerInvite": {
-                                        "type": "integer",
-                                        "minimum": 1,
-                                        "maximum": 1000
-                                    },
-                                    "maxAgeDays": {
-                                        "description": "0 lets invites last forever",
-                                        "type": "integer",
-                                        "minimum": 0,
-                                        "maximum": 365
-                                    }
-                                },
-                                "additionalProperties": false
                             },
                             "requireCaptcha": {
                                 "type": "boolean"
@@ -12087,65 +12029,6 @@
                         "type": "integer",
                         "minimum": 1,
                         "maximum": 8
-                    }
-                }
-            },
-            "AdminInstanceInviteCreateSchema": {
-                "type": "object",
-                "properties": {
-                    "max_uses": {
-                        "description": "0 means unlimited",
-                        "type": "integer",
-                        "minimum": 0,
-                        "maximum": 10000
-                    },
-                    "max_age_seconds": {
-                        "description": "Seconds until the invite expires, 0 means never",
-                        "type": "integer",
-                        "minimum": 0,
-                        "maximum": 31536000
-                    },
-                    "note": {
-                        "maxLength": 200,
-                        "type": "string",
-                        "nullable": true
-                    }
-                }
-            },
-            "AdminInstanceInviteRevokeSchema": {
-                "type": "object",
-                "properties": {
-                    "disable": {
-                        "description": "none revokes only the code, joined also disables the accounts that used it, branch disables everyone below it in the invite tree",
-                        "enum": [
-                            "branch",
-                            "joined",
-                            "none"
-                        ],
-                        "type": "string"
-                    }
-                }
-            },
-            "AdminUserInvitesUpdateSchema": {
-                "type": "object",
-                "properties": {
-                    "bonus_invites": {
-                        "description": "Invites on top of the instance default, negative takes some away",
-                        "type": "integer",
-                        "minimum": -1000,
-                        "maximum": 10000
-                    }
-                },
-                "required": [
-                    "bonus_invites"
-                ]
-            },
-            "AdminUserInviteBranchSchema": {
-                "type": "object",
-                "properties": {
-                    "include_user": {
-                        "description": "Also disable the account itself, not only the people it brought in",
-                        "type": "boolean"
                     }
                 }
             },
@@ -24471,9 +24354,6 @@
                     "attachment": {
                         "$ref": "#/components/schemas/RateLimitOptions"
                     },
-                    "instanceInvite": {
-                        "$ref": "#/components/schemas/RateLimitOptions"
-                    },
                     "auth": {
                         "$ref": "#/components/schemas/AuthRateLimit"
                     }
@@ -24487,7 +24367,6 @@
                     "expression",
                     "guild",
                     "guildCreate",
-                    "instanceInvite",
                     "interaction",
                     "invite",
                     "oauth2",
@@ -29936,191 +29815,6 @@
                 ]
             }
         },
-        "/api/admin/instance-invites/": {
-            "get": {
-                "x-right-required": "VIEW_USERS",
-                "security": [
-                    {
-                        "bearer": []
-                    }
-                ],
-                "description": "Instance invites, newest first, with who made them and how many people joined with each",
-                "responses": {
-                    "default": {
-                        "description": "No description available"
-                    }
-                },
-                "parameters": [
-                    {
-                        "name": "state",
-                        "in": "query",
-                        "required": false,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "Filter by whether the invite still works"
-                    },
-                    {
-                        "name": "q",
-                        "in": "query",
-                        "required": false,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "An exact code, or text from the note"
-                    },
-                    {
-                        "name": "creator_id",
-                        "in": "query",
-                        "required": false,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "Only invites made by this user"
-                    },
-                    {
-                        "name": "offset",
-                        "in": "query",
-                        "required": false,
-                        "schema": {
-                            "type": "number"
-                        }
-                    },
-                    {
-                        "name": "limit",
-                        "in": "query",
-                        "required": false,
-                        "schema": {
-                            "type": "number"
-                        }
-                    }
-                ],
-                "tags": [
-                    "api"
-                ],
-                "x-badges": [
-                    {
-                        "label": "Spacebar-only",
-                        "color": "red"
-                    }
-                ]
-            },
-            "post": {
-                "x-right-required": "MANAGE_USERS",
-                "security": [
-                    {
-                        "bearer": []
-                    }
-                ],
-                "description": "Create a staff invite. It doesn't count against anyone's invites",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/AdminInstanceInviteCreateSchema"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "default": {
-                        "description": "No description available"
-                    }
-                },
-                "tags": [
-                    "api"
-                ],
-                "x-badges": [
-                    {
-                        "label": "Spacebar-only",
-                        "color": "red"
-                    }
-                ]
-            }
-        },
-        "/api/admin/instance-invites/{code}/": {
-            "get": {
-                "x-right-required": "VIEW_USERS",
-                "security": [
-                    {
-                        "bearer": []
-                    }
-                ],
-                "description": "An instance invite with everyone who joined with it and how many accounts sit below it in the invite tree",
-                "responses": {
-                    "default": {
-                        "description": "No description available"
-                    }
-                },
-                "parameters": [
-                    {
-                        "name": "code",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "code"
-                    }
-                ],
-                "tags": [
-                    "api"
-                ],
-                "x-badges": [
-                    {
-                        "label": "Spacebar-only",
-                        "color": "red"
-                    }
-                ]
-            }
-        },
-        "/api/admin/instance-invites/{code}/revoke/": {
-            "post": {
-                "x-right-required": "MANAGE_USERS",
-                "security": [
-                    {
-                        "bearer": []
-                    }
-                ],
-                "description": "Revoke an instance invite, and optionally disable the accounts that joined with it or everyone below it in the invite tree",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/AdminInstanceInviteRevokeSchema"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "default": {
-                        "description": "No description available"
-                    }
-                },
-                "parameters": [
-                    {
-                        "name": "code",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "code"
-                    }
-                ],
-                "tags": [
-                    "api"
-                ],
-                "x-badges": [
-                    {
-                        "label": "Spacebar-only",
-                        "color": "red"
-                    }
-                ]
-            }
-        },
         "/api/admin/ips/bans/": {
             "get": {
                 "x-right-required": "VIEW_MODERATION",
@@ -30555,7 +30249,7 @@
                         "bearer": []
                     }
                 ],
-                "description": "Update instance information, client branding, registration, instance invites, captcha, rate limits and e2ee limits",
+                "description": "Update instance information, client branding, registration, captcha, rate limits and e2ee limits",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -32248,132 +31942,6 @@
                             "type": "string"
                         },
                         "description": "ban_id"
-                    }
-                ],
-                "tags": [
-                    "api"
-                ],
-                "x-badges": [
-                    {
-                        "label": "Spacebar-only",
-                        "color": "red"
-                    }
-                ]
-            }
-        },
-        "/api/admin/users/{user_id}/invites/disable-branch/": {
-            "post": {
-                "x-right-required": "MODERATE_USERS",
-                "security": [
-                    {
-                        "bearer": []
-                    }
-                ],
-                "description": "Disable every account a user brought in, directly or further down the invite tree, and revoke their invites. Staff accounts are skipped",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/AdminUserInviteBranchSchema"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "default": {
-                        "description": "No description available"
-                    }
-                },
-                "parameters": [
-                    {
-                        "name": "user_id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "user_id"
-                    }
-                ],
-                "tags": [
-                    "api"
-                ],
-                "x-badges": [
-                    {
-                        "label": "Spacebar-only",
-                        "color": "red"
-                    }
-                ]
-            }
-        },
-        "/api/admin/users/{user_id}/invites/": {
-            "get": {
-                "x-right-required": "VIEW_USERS",
-                "security": [
-                    {
-                        "bearer": []
-                    }
-                ],
-                "description": "Who invited a user, the invites they made, everyone below them in the invite tree and how many invites they have left",
-                "responses": {
-                    "default": {
-                        "description": "No description available"
-                    }
-                },
-                "parameters": [
-                    {
-                        "name": "user_id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "user_id"
-                    }
-                ],
-                "tags": [
-                    "api"
-                ],
-                "x-badges": [
-                    {
-                        "label": "Spacebar-only",
-                        "color": "red"
-                    }
-                ]
-            },
-            "patch": {
-                "x-right-required": "MANAGE_USERS",
-                "security": [
-                    {
-                        "bearer": []
-                    }
-                ],
-                "description": "Give a user extra instance invites on top of the instance default",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/AdminUserInvitesUpdateSchema"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "default": {
-                        "description": "No description available"
-                    }
-                },
-                "parameters": [
-                    {
-                        "name": "user_id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "user_id"
                     }
                 ],
                 "tags": [
@@ -35973,39 +35541,6 @@
                             "type": "number"
                         },
                         "description": "The length of each registration token. Defaults to 255."
-                    }
-                ],
-                "tags": [
-                    "api"
-                ],
-                "x-badges": [
-                    {
-                        "label": "Spacebar-only",
-                        "color": "red"
-                    }
-                ]
-            }
-        },
-        "/api/auth/instance-invite/": {
-            "get": {
-                "security": [
-                    {}
-                ],
-                "description": "Whether signing up needs an instance invite, and whether the given code can be used to sign up",
-                "responses": {
-                    "default": {
-                        "description": "No description available"
-                    }
-                },
-                "parameters": [
-                    {
-                        "name": "code",
-                        "in": "query",
-                        "required": false,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "Instance invite code"
                     }
                 ],
                 "tags": [
@@ -55229,127 +54764,6 @@
                 },
                 "tags": [
                     "api"
-                ]
-            }
-        },
-        "/api/users/@me/instance-invites/": {
-            "get": {
-                "security": [
-                    {
-                        "bearer": []
-                    }
-                ],
-                "description": "Your instance invites, how many you have left and who joined with them",
-                "responses": {
-                    "200": {
-                        "description": "No description available"
-                    }
-                },
-                "tags": [
-                    "api"
-                ],
-                "x-badges": [
-                    {
-                        "label": "Spacebar-only",
-                        "color": "red"
-                    }
-                ]
-            },
-            "post": {
-                "security": [
-                    {
-                        "bearer": []
-                    }
-                ],
-                "description": "Create an instance invite out of your remaining invites",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/InstanceInviteCreateSchema"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "201": {
-                        "description": "No description available"
-                    },
-                    "400": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/APIErrorResponse"
-                                }
-                            }
-                        }
-                    },
-                    "403": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/APIErrorResponse"
-                                }
-                            }
-                        }
-                    }
-                },
-                "tags": [
-                    "api"
-                ],
-                "x-badges": [
-                    {
-                        "label": "Spacebar-only",
-                        "color": "red"
-                    }
-                ]
-            }
-        },
-        "/api/users/@me/instance-invites/{code}/": {
-            "delete": {
-                "security": [
-                    {
-                        "bearer": []
-                    }
-                ],
-                "description": "Revoke one of your instance invites. Unused uses go back to your remaining invites",
-                "responses": {
-                    "204": {
-                        "description": "No description available"
-                    },
-                    "404": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/APIErrorResponse"
-                                }
-                            }
-                        }
-                    }
-                },
-                "parameters": [
-                    {
-                        "name": "code",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "code"
-                    }
-                ],
-                "tags": [
-                    "api"
-                ],
-                "x-badges": [
-                    {
-                        "label": "Spacebar-only",
-                        "color": "red"
-                    }
                 ]
             }
         },

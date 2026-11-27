@@ -16,7 +16,6 @@
 | --- | --- |
 | [admin.md](features/admin.md) | The admin dashboard at `/admin`. |
 | [signup.md](features/signup.md) | Registration, Cap verification and email. |
-| [invites.md](features/invites.md) | Invite-only registration, instance invites and invite trees. |
 | [automod.md](features/automod.md) | Instance moderation, word lists, account approval, spam and raid protection, and server AutoMod. |
 | [e2ee.md](features/e2ee.md) | End-to-end encrypted DMs, key backup and recovery. |
 | [announcements.md](features/announcements.md) | Encrypted announcements from the official account. |

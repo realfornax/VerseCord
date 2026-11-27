@@ -4,6 +4,8 @@ Operators send an [encrypted](e2ee.md) DM from the instance's official account o
 
 Attachments can add up to 10 MiB in total. They are encrypted like any DM attachment, with the file names inside the encrypted message.
 
+Recipients can read Official messages. The Official account cannot receive replies, calls or friend requests.
+
 ## Delivery
 
 Every 5 seconds a worker sends up to 16 due deliveries, 4 at a time. A recipient with no active encryption device stays queued until they have one. Other errors are retried with a growing delay, and the recipient is marked failed after 10 attempts.

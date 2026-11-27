@@ -199,8 +199,6 @@ test("correctable password and username errors do not consume the solved registr
         allowMultipleAccounts: true,
         enableAbuseIpDb: false,
         enableIpData: false,
-        requireInvite: false,
-        guestsRequireInvite: false,
         email: { ...originalRegister.email, required: false },
     };
     cfg.security.captcha = { enabled: false };
@@ -256,8 +254,6 @@ test("a proof solved in the client's challenge dialog authorizes the retried sig
         allowMultipleAccounts: true,
         enableAbuseIpDb: false,
         enableIpData: false,
-        requireInvite: false,
-        guestsRequireInvite: false,
         email: { ...originalRegister.email, required: false },
     };
     cfg.security.captcha = { enabled: false };

@@ -80,8 +80,7 @@ test("the staff disabled flag survives an undelete and is set by every staff dis
     assert.equal(withStaffDisabled(4, true), Number(DISABLED | 4n));
     assert.equal(withStaffDisabled(Number(DISABLED | 4n), false), 4);
     assert.equal(staffDisableColumns().flags(), `flags | ${DISABLED}`);
-    for (const file of ["src/api/util/utility/accountRemoval.ts", "src/api/util/utility/instanceInvites.ts"])
-        assert.match(fs.readFileSync(file, "utf8"), /staffDisableColumns\(\)/, file);
+    for (const file of ["src/api/util/utility/accountRemoval.ts"]) assert.match(fs.readFileSync(file, "utf8"), /staffDisableColumns\(\)/, file);
     assert.match(fs.readFileSync("src/api/routes/admin/users/#user_id/index.ts", "utf8"), /withStaffDisabled\(/);
     assert.match(fs.readFileSync("src/api/routes/auth/login.ts", "utf8"), /user\.disabled && \(!undelete \|\| isStaffDisabled\(user\.flags\)\)/);
     assert.match(fs.readFileSync("src/api/routes/auth/reset.ts", "utf8"), /disabled: !!user\.disabled && isStaffDisabled\(user\.flags\)/);

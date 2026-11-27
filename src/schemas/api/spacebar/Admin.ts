@@ -108,35 +108,6 @@ export interface AdminSettingsUpdateSchema {
     register?: {
         disabled?: boolean;
         allowNewRegistration?: boolean;
-        requireInvite?: boolean;
-        guestsRequireInvite?: boolean;
-        instanceInvites?: {
-            /**
-             * @TJS-type integer
-             * @minimum 0
-             * @maximum 10000
-             */
-            perUser?: number;
-            /**
-             * @TJS-type integer
-             * @minimum 0
-             * @maximum 3650
-             */
-            minAccountAgeDays?: number;
-            /**
-             * @TJS-type integer
-             * @minimum 1
-             * @maximum 1000
-             */
-            maxUsesPerInvite?: number;
-            /**
-             * 0 lets invites last forever
-             * @TJS-type integer
-             * @minimum 0
-             * @maximum 365
-             */
-            maxAgeDays?: number;
-        };
         requireCaptcha?: boolean;
         allowMultipleAccounts?: boolean;
         incrementingDiscriminators?: boolean;
@@ -1334,49 +1305,4 @@ export interface AdminCapChallengeSchema {
      * @maximum 8
      */
     difficulty?: number;
-}
-
-export interface AdminInstanceInviteCreateSchema {
-    /**
-     * 0 means unlimited
-     * @TJS-type integer
-     * @minimum 0
-     * @maximum 10000
-     */
-    max_uses?: number;
-    /**
-     * Seconds until the invite expires, 0 means never
-     * @TJS-type integer
-     * @minimum 0
-     * @maximum 31536000
-     */
-    max_age_seconds?: number;
-    /**
-     * @maxLength 200
-     */
-    note?: string | null;
-}
-
-export interface AdminInstanceInviteRevokeSchema {
-    /**
-     * none revokes only the code, joined also disables the accounts that used it, branch disables everyone below it in the invite tree
-     */
-    disable?: "none" | "joined" | "branch";
-}
-
-export interface AdminUserInvitesUpdateSchema {
-    /**
-     * Invites on top of the instance default, negative takes some away
-     * @TJS-type integer
-     * @minimum -1000
-     * @maximum 10000
-     */
-    bonus_invites: number;
-}
-
-export interface AdminUserInviteBranchSchema {
-    /**
-     * Also disable the account itself, not only the people it brought in
-     */
-    include_user?: boolean;
 }

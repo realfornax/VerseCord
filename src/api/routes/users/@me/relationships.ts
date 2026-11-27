@@ -320,6 +320,7 @@ router.delete(
 async function updateRelationship(req: Request, res: Response, friend: User, type: RelationshipType) {
     const id = friend.id;
     if (id === req.user_id) throw DiscordApiErrors.CANNOT_FRIEND_SELF;
+    if (friend.system && type !== RelationshipType.BLOCKED) throw DiscordApiErrors.INCOMING_FRIEND_REQUESTS_DISABLED;
 
     const user = await User.findOneOrFail({
         where: { id: req.user_id },

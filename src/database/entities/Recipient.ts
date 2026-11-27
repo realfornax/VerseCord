@@ -1,10 +1,14 @@
-import { BaseEntity, Column, Entity, JoinColumn, ManyToOne, Index, PrimaryColumn } from "typeorm";
+import { BaseEntity, Column, Entity, JoinColumn, ManyToOne, Index, Not, PrimaryColumn } from "typeorm";
 import { BaseClass } from "./BaseClass";
 
 @Entity({
     name: "recipients",
 })
 export class Recipient extends BaseClass {
+    static hasSystemRecipient(channel_id: string, senderId: string) {
+        return Recipient.exists({ where: { channel_id, user_id: Not(senderId), user: { system: true } } });
+    }
+
     @Column()
     @Index("IDX_recipients_channel_id")
     channel_id: string;

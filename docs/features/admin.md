@@ -13,10 +13,9 @@ The dashboard is at `/admin`. Operators see every page, and [setup.md](../self-h
 | ---------------- | ---------------------- | ----------------- | --------------------------------------------------------------------------------------------------- |
 | Instance         | Overview               | any staff right   | Counts and activity charts.                                                                         |
 | Instance         | Site settings          | `OPERATOR`        | Instance configuration, see [Site settings](#site-settings).                                        |
-| Instance         | Official inbox         | `OPERATOR`        | Direct messages to and from the official account.                                                   |
+| Instance         | Official inbox         | `OPERATOR`        | Send direct messages from the official account and view conversation history.                                                   |
 | Instance         | Announcements          | `OPERATOR`        | Encrypted announcements from the official account, see [announcements.md](announcements.md).        |
 | People & servers | Users & profiles       | `VIEW_USERS`      | Accounts, addresses and IP bans.                                                                    |
-| People & servers | Instance invites       | `VIEW_USERS`      | Signup invites and invite trees, see [invites.md](invites.md).                                      |
 | People & servers | Servers                | `MANAGE_GUILDS`   | Servers, their channels and roles.                                                                  |
 | People & servers | Reports                | `VIEW_MODERATION` | Reports people sent from the client.                                                                |
 | People & servers | Automod                | `VIEW_MODERATION` | Instance automod, see [automod.md](automod.md).                                                     |
@@ -46,15 +45,15 @@ A staff role is a named set of instance rights with a position, a color and a ba
 
 | Right             | Allows                                                                                                        |
 | ----------------- | ------------------------------------------------------------------------------------------------------------- |
-| `MANAGE_USERS`    | Everything the next four rights allow, plus profile edits, account deletion, automod settings and instance invites. |
-| `VIEW_USERS`      | Search and open accounts, and list addresses, badges, the shop catalog and instance invites.                  |
+| `MANAGE_USERS`    | Everything the next four rights allow, plus profile edits, account deletion and automod settings. |
+| `VIEW_USERS`      | Search and open accounts, and list addresses, badges and the Shop catalogue.                  |
 | `MODERATE_USERS`  | Violations, suspensions, disabling, IP bans, report decisions, automod actions, join requests and raids. Includes `VIEW_MODERATION`. |
 | `VIEW_MODERATION` | Read reports, violations, IP bans and the Automod page.                                                       |
 | `SUPPORT_USERS`   | Password reset links, turning off two-factor authentication, signing out sessions, marking an email verified. |
 | `MANAGE_STAFF`    | Create, edit, reorder, delete and assign staff roles.                                                         |
 | `VIEW_AUDIT_LOG`  | Read the audit log.                                                                                           |
 
-Staff can't act on an account at or above their own level, which is their highest role position, and can't assign or move a role to it or above or give a role a right they don't have. They also can't open that account's page, sessions, two factor methods, invites, standing, staff roles, settings, widgets or pride badges, though the user search still lists it. Operators are above every role. A role with the badge switch on shows a staff badge on its members' profiles.
+Staff can't act on an account at or above their own level, which is their highest role position, and can't assign or move a role to it or above or give a role a right they don't have. They also can't open that account's page, sessions, two factor methods, standing, staff roles, settings, widgets or pride badges, though the user search still lists it. Operators are above every role. A role with the badge switch on shows a staff badge on its members' profiles.
 
 ## Audit log
 
@@ -66,7 +65,7 @@ The Overview page shows counts of accounts, servers, messages, people online and
 
 ## Users
 
-The Users page has tabs for local accounts, accounts from other instances, IP addresses and IP bans, and can filter to suspended accounts, accounts waiting for approval and accounts with a join reason. The user drawer edits the account, its profile and cosmetics, rights, standing, violations, sessions, two-factor authentication, staff roles and invites, and each field needs the right listed above for it. The dashboard never shows password hashes, tokens, two-factor secrets, encryption keys or recovery codes.
+The Users page has tabs for local accounts, accounts from other instances, IP addresses and IP bans, and can filter to suspended accounts, accounts waiting for approval and accounts with a join reason. The user drawer edits the account, its profile and cosmetics, rights, standing, violations, sessions, two-factor authentication and staff roles, and each field needs the right listed above for it. The dashboard never shows password hashes, tokens, two-factor secrets, encryption keys or recovery codes.
 
 ### Removing spam accounts
 
@@ -103,7 +102,9 @@ The Sticker packs page holds packs imported from Discord, as [setup.md](../self-
 
 ## Site settings
 
-Site settings holds the instance configuration, and everything it doesn't show is in the configuration file described in [setup.md](../self-hosting/setup.md#configuration-file). [signup.md](signup.md), [invites.md](invites.md), [automod.md](automod.md), [homepage.md](homepage.md) and [external-services.md](../self-hosting/external-services.md) describe their own settings.
+To update the legal pages, publish your documents at HTTPS URLs. In **Site settings > Instance information**, enter the **Terms of service URL** and **Privacy policy URL**, then click **Save settings**. Open `/terms` and `/privacy` on your instance to check the redirects. If the privacy URL is empty, `/privacy` uses the terms URL. For file-based configuration, set `general.tosPage` and `general.privacyPage`.
+
+Site settings holds the instance configuration, and everything it doesn't show is in the configuration file described in [setup.md](../self-hosting/setup.md#configuration-file). [signup.md](signup.md), [automod.md](automod.md), [homepage.md](homepage.md) and [external-services.md](../self-hosting/external-services.md) describe their own settings.
 
 The Client addresses card sets how the server finds a visitor's address for rate limits, bans and the address caps. Address header sets `security.forwardedFor`. Automatic, the blank value, and `X-Forwarded-For` both read `X-Forwarded-For` from trusted proxies and `CF-Connecting-IP` from Cloudflare. The other choices are `CF-Connecting-IP`, `True-Client-IP`, `X-Real-IP` and `Fly-Client-IP`. Trusted proxies sets `security.trustedProxies`, a comma separated list of addresses, CIDR ranges or the names `loopback`, `linklocal` and `uniquelocal`, which is all three names when blank and takes effect after a restart. Under Docker, `scripts/docker-configure.js` resets the header to `X-Forwarded-For` and the proxies to `TRUSTED_PROXIES` on every start, so set the proxies in `.env` there.
 

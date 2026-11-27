@@ -303,7 +303,6 @@ export async function initRateLimits(app: Router) {
     app.use("/channels/:channel_id", rateLimit(routes.channel));
     const userProfile = rateLimit({ bucket: "PATCH users/@me", ...routes.userProfile });
     app.patch("/users/:user_id", (req, res, next) => ([req.user_id, "@me"].includes(`${req.params.user_id}`) ? userProfile(req, res, next) : next()));
-    app.use("/users/@me/instance-invites", rateLimit({ bucket: "users/@me/instance-invites", ...routes.instanceInvite }));
     app.get(["/federation/discovery", "/federation/discovery/guilds/:guild_id"], rateLimit({ bucket: "GET federation/discovery", count: 60, window: 30 }));
     const userWrites = rateLimit({ onlyWrites: true, ...routes.user });
     app.use("/users/:user_id", (req, res, next) =>
@@ -331,7 +330,6 @@ export async function initRateLimits(app: Router) {
     app.use("/auth/login", rateLimit(routes.auth.login));
     app.use(["/auth/appeal", "/auth/mfa", "/mfa/finish", "/auth/conditional", "/auth/passwordless", "/auth/forgot", "/auth/reset", "/auth/verify"], rateLimit(routes.auth.login));
     app.use("/auth/register", rateLimit({ onlyIp: true, success: true, ...routes.auth.register }));
-    app.get("/auth/instance-invite", rateLimit({ bucket: "auth/instance-invite", onlyIp: true, count: 30, window: 60 }));
     applyRouteLimits(app, anonymousRouteLimits);
 }
 

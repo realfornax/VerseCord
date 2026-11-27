@@ -71,7 +71,7 @@ function readRoutes(file) {
 
 const supportRequest = { user_id: "support", params: { user_id: "admin" }, rights: { bitfield: 0n, has: () => true }, query: {}, method: "GET" };
 
-for (const file of ["index.ts", "mfa.ts", "sessions/index.ts", "invites/index.ts", "staff-roles.ts", "violations/index.ts"]) {
+for (const file of ["index.ts", "mfa.ts", "sessions/index.ts", "staff-roles.ts", "violations/index.ts"]) {
     test(`GET ${`/admin/users/:id/${file.replace(/(\/)?index\.ts$|\.ts$/, "")}`.replace(/\/$/, "")} refuses staff at or above the reader's role before reading`, async () => {
         const { routes, reads, viewed } = readRoutes(`src/api/routes/admin/users/#user_id/${file}`);
         await assert.rejects(routes["GET /"](supportRequest, response()), /view staff at or above/);

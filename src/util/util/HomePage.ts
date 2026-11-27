@@ -11,7 +11,6 @@ export const homePage = (origin?: string) => {
     const { general, register, client } = Config.get();
     const name = escapeHtml(instanceName());
     const closed = register.disabled || !register.allowNewRegistration;
-    const inviteOnly = !closed && register.requireInvite;
     const email = general.correspondenceEmail?.trim();
     const contact = email ? `<a href="mailto:${escapeHtml(email)}">${escapeHtml(email)}</a>` : null;
 
@@ -19,23 +18,14 @@ export const homePage = (origin?: string) => {
         ? `<a class="button primary" href="/login">Sign in</a>`
         : `<a class="button primary" href="/register">Create an account</a><a class="button" href="/login">Sign in</a>`;
 
-    const joinNote = closed
-        ? "New accounts are closed right now. Existing accounts can still sign in."
-        : inviteOnly
-          ? "You need an invite link from someone already here to create an account."
-          : "Signing up takes a minute and doesn't need a phone number.";
+    const joinNote = closed ? "New accounts are closed right now. Existing accounts can still sign in." : "Signing up takes a minute and doesn't need a phone number.";
 
     const joinAnswer = closed
         ? `<p>${name} isn't taking new accounts right now.${contact ? ` You can ask the people who run it at ${contact}.` : ""}</p>`
-        : inviteOnly
-          ? `<p>Ask someone who already has an account for an invite link, then open it to create yours. Accounts created without an invite are turned away.</p>`
-          : `<p>Pick <a href="/register">Create an account</a>, choose a username and password and solve a short check that proves you're human. An email address is only needed if this instance asks for one.</p>`;
+        : `<p>Pick <a href="/register">Create an account</a>, choose a username and password and solve a short check that proves you're human. An email address is only needed if this instance asks for one.</p>`;
 
     const faq: [string, string][] = [
-        [
-            `What is ${name}?`,
-            `<p>${name} is a self-hosted chat service with servers, channels, DMs, voice and video.</p>`,
-        ],
+        [`What is ${name}?`, `<p>${name} is a self-hosted chat service with servers, channels, DMs, voice and video.</p>`],
         ["Is this Discord?", `<p>No. ${name} is its own service with its own accounts. Your Discord account doesn't work here, and nothing you post here is sent to Discord.</p>`],
         ["How do I join?", joinAnswer],
         [

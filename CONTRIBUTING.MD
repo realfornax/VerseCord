@@ -75,7 +75,6 @@ To use SQLite instead of PostgreSQL, see [setup.md](docs/self-hosting/setup.md#s
 | `client.experiments` | Client experiment names mapped to the variant to assign. |
 | `client.activityApplicationHost` | The host activities load from, see [activities.md](docs/features/activities.md). |
 | `security.captcha` | Cap settings, see [signup.md](docs/features/signup.md). |
-| `register.requireInvite`, `register.instanceInvites` | Invite-only registration, see [invites.md](docs/features/invites.md). |
 | `limits.rate` | Rate limits per IP, globally, per route group and for errors and identify. Each bucket has a `count` and a `window` in seconds. The buckets are stored in the database. |
 | `limits.e2ee` | Encryption limits, see [e2ee.md](docs/features/e2ee.md). |
 | `security.webPush` | Web Push and its VAPID keys, which the server generates on first start. |

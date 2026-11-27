@@ -142,7 +142,6 @@ test("every admin route that edits a user's data or a server checks the federati
         "src/api/routes/admin/users/#user_id/index.ts": "assertShadowUserEditable",
         "src/api/routes/admin/users/#user_id/mfa.ts": "assertShadowUserEditable",
         "src/api/routes/admin/users/#user_id/password-reset.ts": "assertShadowUserEditable",
-        "src/api/routes/admin/users/#user_id/invites/index.ts": "assertShadowUserEditable",
         "src/api/routes/admin/users/#user_id/violations/index.ts": "assertShadowUserEditable",
         "src/api/routes/admin/users/#user_id/widgets.ts": 'adminCustomizationTarget(req, "profile widgets")',
         "src/api/routes/admin/users/#user_id/settings.ts": 'adminCustomizationTarget(req, "client preferences")',

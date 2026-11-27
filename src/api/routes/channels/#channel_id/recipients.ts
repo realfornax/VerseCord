@@ -102,7 +102,8 @@ router.put(
             throw DiscordApiErrors.UNKNOWN_CHANNEL; // TODO: is this the right error
         }
 
-        const added = await User.findOne({ where: { id: user_id }, select: { id: true, federated_instance: true } });
+        const added = await User.findOne({ where: { id: user_id }, select: { id: true, federated_instance: true, system: true } });
+        if (added?.system || (await Recipient.hasSystemRecipient(channel_id, req.user_id))) throw DiscordApiErrors.CANNOT_MESSAGE_USER;
         if (added?.federated_instance && (channel.e2ee_enabled_at || channel.type !== ChannelType.GROUP_DM)) {
             const devices = await e2eeDevicesOf([user_id], { channel_id, force: true });
             if (!devices.some((device) => device.status === "active"))

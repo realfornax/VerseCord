@@ -11,7 +11,6 @@ test("page level empty lists explain what belongs there and offer one action", (
         ["No accounts match this search and filter.", "Clear search and filter"],
         ["No servers match this search. Search by name or ID.", "Clear search"],
         ["No address bans match this search and filter.", "Show all address bans"],
-        ["No invites match this search and filter.", "Show all invites"],
         ["No open reports. Reports people send from the client's Report menus show up here.", "Show all reports"],
         ["No badges yet. Create one with your own icon or a preset, then give it out from a user's page.", "Create badge"],
         ["No custom games yet. Add one so people can put it on their profile or server.", "Add game"],

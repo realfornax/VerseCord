@@ -82,7 +82,6 @@ const absolute = (value: string | null | undefined, base: string) => (value && U
 export const registrationState = (): RegistrationState => {
     const { register } = Config.get();
     if (register.disabled || !register.allowNewRegistration) return "closed";
-    if (register.requireInvite) return "invite";
     if (register.requireApproval) return "approval";
     return "open";
 };

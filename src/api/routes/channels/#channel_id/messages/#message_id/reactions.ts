@@ -3,7 +3,7 @@ import { HTTPError } from "lambert-server/HTTPError";
 import { In, MoreThan } from "typeorm";
 import { route } from "@spacebar/api/middlewares";
 import { assertCanInteract, assertGuildVerification, getBurstColors, handleAppealVote } from "@spacebar/api/util";
-import { Channel, Emoji, Member, Message, User } from "@spacebar/database";
+import { Channel, Emoji, Member, Message, Recipient, User } from "@spacebar/database";
 import {
     DiscordApiErrors,
     emitEvent,
@@ -207,6 +207,7 @@ router.put(
             await assertCanInteract(channel.guild_id, req.user_id);
             await assertGuildVerification(channel.guild_id, req.user_id);
         }
+        if (!channel.guild_id && (await Recipient.hasSystemRecipient(channel_id, req.user_id))) throw DiscordApiErrors.CANNOT_MESSAGE_USER;
         const external_emoji = emoji.id ? await Emoji.findOne({ where: { id: emoji.id } }) : undefined;
         if (emoji.id && !external_emoji) throw DiscordApiErrors.UNKNOWN_EMOJI;
         if (external_emoji) {

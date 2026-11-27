@@ -25,7 +25,7 @@ const suffix = randomBytes(5).toString("hex"),
     password = randomBytes(18).toString("hex"),
     email = `official-inbox-${suffix}@fosscord.test`;
 let token, id, context;
-let sentId, replyId;
+let sentId;
 const profile = mkdtempSync(join(tmpdir(), "fosscord-official-inbox-render-"));
 const errors = [];
 async function call(method, path, body) {
@@ -80,7 +80,6 @@ try {
     await admin.locator(`[data-official-user="${id}"]`).click();
     await admin.locator("#official-send").waitFor({ timeout: 20000 });
     const content = `Official encrypted native proof ${suffix}`;
-    const reply = `Native encrypted recipient reply ${suffix}`;
     await admin.locator('#official-send textarea[name="content"]').fill(content);
     const posted = admin.waitForResponse((response) => response.url().includes(`/admin/conversations/${id}`) && response.request().method() === "POST");
     await admin.getByRole("button", { name: "Send as Official", exact: true }).click();
@@ -93,37 +92,26 @@ try {
     await admin.getByText(content, { exact: true }).waitFor({ timeout: 20000 });
     await page.goto(`${origin}/channels/@me/${channelId}`);
     await page.getByText(content, { exact: true }).waitFor({ timeout: 30000 });
-    const editor = page.locator('[role="textbox"][contenteditable="true"]').first();
-    await editor.waitFor({ timeout: 20000 });
-    await editor.fill(reply);
-    const replied = page.waitForResponse((response) => response.url().includes(`/channels/${channelId}/messages`) && response.request().method() === "POST");
-    await editor.press("Enter");
-    const replyResponse = await replied;
-    if (replyResponse.status() !== 200) console.log("Native reply denial:", await replyResponse.text());
-    assert.equal(replyResponse.status(), 200);
-    replyId = (await replyResponse.json()).id;
-    await page.getByText(reply, { exact: true }).waitFor({ timeout: 20000 });
+    assert.equal(await page.locator('[role="textbox"][contenteditable="true"]').count(), 0);
+    const reply = await call("POST", `/channels/${channelId}/messages`, { content: "read-only fixture" });
+    assert.equal(reply.status, 403);
+    assert.equal(reply.body.code, 50007);
     const inbox = await call("GET", `/admin/conversations/${id}`);
     assert.equal(inbox.status, 200);
-    assert.equal(inbox.body.messages.find((message) => message.id === replyId)?.content, reply);
     assert.equal(inbox.body.messages.find((message) => message.id === sentId)?.content, content);
     await admin.getByRole("button", { name: "Refresh", exact: true }).click();
-    await admin.getByText(reply, { exact: true }).waitFor({ timeout: 20000 });
-    const stored = JSON.parse(
-        sql(`SELECT json_agg(json_build_object('id',id::text,'content',content,'encrypted',encrypted,'nonce',nonce)) FROM messages WHERE id IN ('${sentId}','${replyId}')`),
-    );
-    assert.equal(stored.length, 2);
+    await admin.getByText(content, { exact: true }).waitFor({ timeout: 20000 });
+    const stored = JSON.parse(sql(`SELECT json_agg(json_build_object('id',id::text,'content',content,'encrypted',encrypted,'nonce',nonce)) FROM messages WHERE id = '${sentId}'`));
+    assert.equal(stored.length, 1);
     for (const message of stored) {
         assert.equal(message.content, "🔒 Encrypted message");
         assert.ok(message.encrypted);
         assert.equal(JSON.stringify(message).includes(content), false);
-        assert.equal(JSON.stringify(message).includes(reply), false);
     }
     const audit = JSON.parse(sql(`SELECT json_agg(json_build_object('changes',changes,'options',options)) FROM audit_logs WHERE user_id='${id}' AND action_type=2001`));
     assert.equal(audit.length, 1);
     assert.equal(audit[0].options.message_id, sentId);
     assert.equal(JSON.stringify(audit).includes(content), false);
-    assert.equal(JSON.stringify(audit).includes(reply), false);
     await page.screenshot({ path: "/tmp/fosscord-official-inbox-native.png" });
     await admin.screenshot({ path: "/tmp/fosscord-official-inbox-admin.png" });
     sql(`UPDATE users SET rights=128 WHERE id='${id}'`);
@@ -133,7 +121,7 @@ try {
     assert.equal((await call("POST", `/admin/conversations/${id}`, { content: "denied fixture" })).status, 403);
     assert.deepEqual(errors, []);
     console.log(
-        "PASS native Official encrypted send/reply, dashboard decrypted reply, ciphertext-only persisted messages, metadata-only audit, MANAGE_USERS-only denied, zero browser errors",
+        "PASS native Official encrypted delivery, read-only conversation, ciphertext-only persisted messages, metadata-only audit, MANAGE_USERS-only denied, zero browser errors",
     );
 } finally {
     if (context) await context.close();

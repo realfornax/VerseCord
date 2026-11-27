@@ -54,6 +54,6 @@ test("the users and servers pages page with the cursor each response returns", (
         assert.match(source, /decodeCursor\(req\.query\.after/, file);
         assert.match(source, /next,/, file);
     }
-    for (const file of ["reports/index.ts", "instance-invites/index.ts", "ips/index.ts", "ips/bans/index.ts"])
+    for (const file of ["reports/index.ts", "ips/index.ts", "ips/bans/index.ts"])
         assert.match(fs.readFileSync(`src/api/routes/admin/${file}`, "utf8"), /listOffset\(req\.query\.offset\)/, file);
 });

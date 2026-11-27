@@ -1,6 +1,6 @@
 import { Request, Response, Router } from "express";
 import { route } from "@spacebar/api/middlewares";
-import { capChallengeParameters, captchaEnabled, inviteSettings } from "@spacebar/api/util";
+import { capChallengeParameters, captchaEnabled } from "@spacebar/api/util";
 import { Config } from "@spacebar/util";
 import { HTTPError } from "lambert-server/HTTPError";
 import { AdminSettingsUpdateSchema } from "@spacebar/schemas";
@@ -41,9 +41,6 @@ const pickSettings = () => {
         register: {
             disabled: register.disabled,
             allowNewRegistration: register.allowNewRegistration,
-            requireInvite: register.requireInvite,
-            guestsRequireInvite: register.guestsRequireInvite,
-            instanceInvites: { ...inviteSettings() },
             requireCaptcha: register.requireCaptcha,
             allowMultipleAccounts: register.allowMultipleAccounts,
             incrementingDiscriminators: register.incrementingDiscriminators,
@@ -131,7 +128,7 @@ router.patch(
         right: "OPERATOR",
         spacebarOnly: true,
         requestBody: "AdminSettingsUpdateSchema",
-        description: "Update instance information, client branding, registration, instance invites, captcha, rate limits and e2ee limits",
+        description: "Update instance information, client branding, registration, captcha, rate limits and e2ee limits",
     }),
     async (req: Request, res: Response) => {
         const body = req.body as AdminSettingsUpdateSchema;

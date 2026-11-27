@@ -35,7 +35,6 @@ router.get(
                 register_dateOfBirth_required: false,
                 register_password_required: general.register.password.required,
                 register_disabled: general.register.disabled,
-                register_requireInvite: general.register.requireInvite,
                 register_allowNewRegistration: general.register.allowNewRegistration,
                 register_allowMultipleAccounts: general.register.allowMultipleAccounts,
                 guild_autoJoin_canLeave: general.guild.autoJoin.canLeave,

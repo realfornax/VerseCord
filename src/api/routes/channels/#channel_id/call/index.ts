@@ -24,7 +24,7 @@ export const ringRecipients = (req: Request) => {
 
 router.get("/", route({ responses: { 200: {}, 404: {} } }), async (req: Request, res: Response) => {
     await assertRecipient(req);
-    res.json({ ringable: true });
+    res.json({ ringable: !(await Recipient.hasSystemRecipient(req.params.channel_id as string, req.user_id)) });
 });
 
 router.patch("/", route({ responses: { 204: {}, 404: {} } }), async (req: Request, res: Response) => {

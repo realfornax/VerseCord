@@ -24,11 +24,6 @@ export interface RegisterSchema {
      */
     invite?: string;
     /**
-     * Instance invite code, needed when the instance is invite-only
-     * @maxLength 64
-     */
-    instance_invite?: string;
-    /**
      * @TJS-type string
      * @maxLength 32
      */

@@ -1,12 +1,12 @@
 "use strict";
 
 const STAFF_ROLE_RIGHTS = [
-  ["VIEW_USERS", 51, "View accounts", "Search accounts and open their details, addresses, sessions and invites."],
+  ["VIEW_USERS", 51, "View accounts", "Search accounts and open their details, addresses and sessions."],
   ["SUPPORT_USERS", 54, "Account recovery", "Send password reset links, remove two-factor, mark email verified and sign accounts out."],
   ["VIEW_MODERATION", 53, "Read moderation", "Read reports, violations, IP bans and the automod log without acting."],
   ["MODERATE_USERS", 52, "Moderate accounts", "Handle reports, issue violations, suspend, disable and ban, and act on automod."],
   ["MANAGE_MESSAGES", 3, "Remove content", "Delete or edit any message the account can see."],
-  ["MANAGE_USERS", 7, "Manage accounts", "Edit profiles, delete accounts, manage instance invites and automod settings. Includes the four rights above it."],
+  ["MANAGE_USERS", 7, "Manage accounts", "Edit profiles, delete accounts, manage automod settings. Includes the four rights above it."],
   ["MANAGE_GUILDS", 2, "Manage servers", "Edit, delete and repair any server."],
   ["MANAGE_STAFF", 55, "Manage staff", "Create, edit and assign staff roles below their own."],
   ["VIEW_AUDIT_LOG", 56, "Read the audit log", "See every staff action on this instance."],
@@ -21,7 +21,6 @@ const STAFF_AUDIT_AREAS = [
   ["reports", "Reports"],
   ["automod", "Automod"],
   ["ips", "IP bans"],
-  ["instance-invites", "Instance invites"],
   ["guilds", "Servers"],
   ["channels", "Messages"],
   ["settings", "Site settings"],

@@ -11,7 +11,6 @@ The homepage has the instance icon and name, a tagline, sign-up and sign-in butt
 | `client.instanceName`, `client.icon`                 | The name and icon throughout the page.                                         |
 | `general.instanceDescription`                        | Replaces the default tagline and the page's meta description.                  |
 | `register.disabled`, `register.allowNewRegistration` | Either one closes registration, and the page then says new accounts are closed. |
-| `register.requireInvite`                             | The page explains that joining needs an invite link.                           |
 | `general.correspondenceEmail`                        | Adds a Contact link to the footer and the address to the FAQ.                  |
 
 ## Link previews

@@ -24,7 +24,7 @@ async function canJoin(userId: string, guildId: string | undefined, channelId: s
             where: { channel_id: channelId },
             select: { user_id: true },
         });
-        if (!recipients.some((x) => x.user_id === userId)) return null;
+        if (!recipients.some((x) => x.user_id === userId) || (await Recipient.hasSystemRecipient(channelId, userId))) return null;
         // no calls in a dm between people where one blocked the other
         const other = channel.type === ChannelType.DM ? recipients.find((x) => x.user_id !== userId)?.user_id : undefined;
         if (other && (await Relationship.isBlockedBetween(userId, other))) return null;

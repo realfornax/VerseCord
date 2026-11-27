@@ -1,8 +1,8 @@
 import { Request, Response, Router } from "express";
 import { messageSlowmodeCooldown } from "@spacebar/api/util/handlers/Slowmode";
 import { route } from "@spacebar/api/middlewares";
-import { Channel, Member } from "@spacebar/database";
-import { emitEvent, getPermission, TypingStartEvent } from "@spacebar/util";
+import { Channel, Member, Recipient } from "@spacebar/database";
+import { DiscordApiErrors, emitEvent, getPermission, TypingStartEvent } from "@spacebar/util";
 
 const router: Router = Router({ mergeParams: true });
 
@@ -24,6 +24,8 @@ router.post(
         const channel = await Channel.findOneOrFail({
             where: { id: channel_id },
         });
+
+        if (!channel.guild_id && (await Recipient.hasSystemRecipient(channel_id, user_id))) throw DiscordApiErrors.CANNOT_MESSAGE_USER;
 
         if (channel.rate_limit_per_user) {
             const permission = req.permission ?? (await getPermission(user_id, channel.guild_id, channel));
